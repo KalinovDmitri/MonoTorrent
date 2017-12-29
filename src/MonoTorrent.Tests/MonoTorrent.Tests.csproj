@@ -93,7 +93,7 @@
     <Compile Include="Client\RangeCollectionTests.cs" />
     <Compile Include="Client\RarestFirstPickerTests.cs" />
     <Compile Include="Client\SlidingWindowPickerTests.cs" />
-    <Compile Include="Client\TestEncryption.cs" />
+    <Compile Include="Client\EncryptionTests.cs" />
     <Compile Include="Client\TestPicker.cs" />
     <Compile Include="Client\TestRig.cs" />
     <Compile Include="Client\TestWebSeed.cs" />

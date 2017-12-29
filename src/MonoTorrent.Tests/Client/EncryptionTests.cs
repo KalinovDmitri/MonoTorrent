@@ -10,7 +10,7 @@ using MonoTorrent.Client.Encryption;
 namespace MonoTorrent.Client
 {
 	[TestFixture]
-	public class TestEncryption
+	public class EncryptionTests
 	{
 		//public static void Main(string[] args)
 		//{
@@ -47,7 +47,6 @@ namespace MonoTorrent.Client
 		{
 			conn.Dispose();
 			rig.Engine.StopAll();
-			rig.Dispose();
 
 			for (int i = 0; i < 1000; i++)
 			{
