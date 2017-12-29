@@ -39,125 +39,125 @@ using MonoTorrent.BEncoding;
 
 namespace MonoTorrent.Tracker.Listeners
 {
-    public class HttpListener : ListenerBase
-    {
-        #region Fields
+	public class HttpListener : ListenerBase
+	{
+		#region Fields
 
-        private string prefix;
-        private System.Net.HttpListener listener;
+		private string prefix;
+		private System.Net.HttpListener listener;
 
-        #endregion Fields
-
-
-        #region Properties
-
-        /// <summary>
-        /// True if the listener is waiting for incoming connections
-        /// </summary>
-        public override bool Running
-        {
-            get { return listener != null; }
-        }
-
-        #endregion Properties
+		#endregion Fields
 
 
-        #region Constructors
+		#region Properties
 
-        public HttpListener(IPAddress address, int port)
-            : this(string.Format("http://{0}:{1}/announce/", address, port))
-        {
+		/// <summary>
+		/// True if the listener is waiting for incoming connections
+		/// </summary>
+		public override bool Running
+		{
+			get { return listener != null; }
+		}
 
-        }
-
-        public HttpListener(IPEndPoint endpoint)
-            : this(endpoint.Address, endpoint.Port)
-        {
-
-        }
-
-        public HttpListener(string httpPrefix)
-        {
-            if (string.IsNullOrEmpty(httpPrefix))
-                throw new ArgumentNullException("httpPrefix");
-
-            this.prefix = httpPrefix;
-        }
-
-        #endregion Constructors
+		#endregion Properties
 
 
-        #region Methods
+		#region Constructors
 
-        /// <summary>
-        /// Starts listening for incoming connections
-        /// </summary>
-        public override void Start()
-        {
+		public HttpListener(IPAddress address, int port)
+			: this(string.Format("http://{0}:{1}/announce/", address, port))
+		{
+
+		}
+
+		public HttpListener(IPEndPoint endpoint)
+			: this(endpoint.Address, endpoint.Port)
+		{
+
+		}
+
+		public HttpListener(string httpPrefix)
+		{
+			if (string.IsNullOrEmpty(httpPrefix))
+				throw new ArgumentNullException("httpPrefix");
+
+			this.prefix = httpPrefix;
+		}
+
+		#endregion Constructors
+
+
+		#region Methods
+
+		/// <summary>
+		/// Starts listening for incoming connections
+		/// </summary>
+		public override void Start()
+		{
 			if (Running)
 				return;
-			
-			listener = new System.Net.HttpListener();
-            listener.Prefixes.Add(prefix);
-            listener.Start();
-            listener.BeginGetContext(EndGetRequest, listener);
-        }
 
-        /// <summary>
-        /// Stops listening for incoming connections
-        /// </summary>
-        public override void Stop()
-        {
+			listener = new System.Net.HttpListener();
+			listener.Prefixes.Add(prefix);
+			listener.Start();
+			listener.BeginGetContext(EndGetRequest, listener);
+		}
+
+		/// <summary>
+		/// Stops listening for incoming connections
+		/// </summary>
+		public override void Stop()
+		{
 			if (!Running)
 				return;
-			
-            IDisposable d = (IDisposable)listener;
+
+			IDisposable d = (IDisposable)listener;
 			listener = null;
-            d.Dispose();
-        }
+			d.Dispose();
+		}
 
-        private void EndGetRequest(IAsyncResult result)
-        {
+		private void EndGetRequest(IAsyncResult result)
+		{
 			HttpListenerContext context = null;
-			System.Net.HttpListener listener = (System.Net.HttpListener) result.AsyncState;
-            
-            try
-            {
-                context = listener.EndGetContext(result);
-                using (context.Response)
-                    HandleRequest(context);
-            }
-            catch(Exception ex)
-            {
-                Console.Write("Exception in listener: {0}{1}", Environment.NewLine, ex);
-            }
-            finally
-            {
-                try
-                {
-                    if (listener.IsListening)
-                        listener.BeginGetContext(EndGetRequest, listener);
-                }
-                catch
-                {
-                    Stop();
-                }
-            }
-        }
+			System.Net.HttpListener listener = (System.Net.HttpListener)result.AsyncState;
 
-        private void HandleRequest(HttpListenerContext context)
-        {
-            bool isScrape = context.Request.RawUrl.StartsWith("/scrape", StringComparison.OrdinalIgnoreCase);
+			try
+			{
+				context = listener.EndGetContext(result);
+				using (context.Response)
+					HandleRequest(context);
+			}
+			catch (Exception ex)
+			{
+				Console.Write("Exception in listener: {0}{1}", Environment.NewLine, ex);
+			}
+			finally
+			{
+				try
+				{
+					if (listener.IsListening)
+						listener.BeginGetContext(EndGetRequest, listener);
+				}
+				catch
+				{
+					Stop();
+				}
+			}
+		}
 
-            BEncodedValue responseData = Handle(context.Request.RawUrl, context.Request.RemoteEndPoint.Address, isScrape);
+		private void HandleRequest(HttpListenerContext context)
+		{
+			bool isScrape = context.Request.RawUrl.StartsWith("/scrape", StringComparison.OrdinalIgnoreCase);
 
-            byte[] response = responseData.Encode();
-            context.Response.ContentType = "text/plain";
-            context.Response.StatusCode = 200;
-            context.Response.ContentLength64 = response.LongLength;
-            context.Response.OutputStream.Write(response, 0, response.Length);
-        }
+			BEncodedValue responseData = Handle(context.Request.RawUrl, context.Request.RemoteEndPoint.Address, isScrape);
 
-        #endregion Methods
-    }
+			byte[] response = responseData.Encode();
+			context.Response.ContentType = "text/plain";
+			context.Response.StatusCode = 200;
+			context.Response.ContentLength64 = response.LongLength;
+			context.Response.OutputStream.Write(response, 0, response.Length);
+		}
+
+		#endregion Methods
+	}
 }

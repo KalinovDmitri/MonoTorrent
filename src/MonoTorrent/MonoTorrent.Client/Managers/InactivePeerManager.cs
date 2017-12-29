@@ -36,10 +36,10 @@ namespace MonoTorrent.Client
 		/// </summary>
 		/// <param name="TorrentManager">The torrent manager this choke/unchoke manager belongs to</param>
 		/// <param name="TimeToWaitBeforeIdle">Number of seconds to protect a peer from being marked as inactive</param>
-        public InactivePeerManager(TorrentManager TorrentManager)
-        {
-            owningTorrent = TorrentManager;
-        }
+		public InactivePeerManager(TorrentManager TorrentManager)
+		{
+			owningTorrent = TorrentManager;
+		}
 
 		#endregion
 
@@ -70,8 +70,8 @@ namespace MonoTorrent.Client
 			int indexOfFirstInterestingCandidate = -1;
 			int leastAttractiveCandidate = -1; // The least attractive peer that has sent us data
 			int longestCalculatedInactiveTime = 0; // Seconds we calculated for the least attractive candidate
-			
-            // FIXME These three variables aren't used in the calculation - need to fix this.
+
+			// FIXME These three variables aren't used in the calculation - need to fix this.
 			int candidateSecondsConnected = 0;
 			int candidateSecondsSinceLastBlock = -1;
 			int candidateDataBytes = -1;
@@ -104,10 +104,10 @@ namespace MonoTorrent.Client
 					// No point looking for inactive peers that have sent us data if we found a candidate that's sent us nothing or if we aren't allowed
 					// to disconnect peers that have sent us data.
 					// If the number of available peers is running low (less than max number of peer connections), don't try to inactivate peers that have given us data
-					if (indexOfFirstInterestingCandidate < 0 
+					if (indexOfFirstInterestingCandidate < 0
 						&& owningTorrent.Settings.ConnectionRetentionFactor > 0
-						&& nextPeer.Monitor.DataBytesDownloaded > 0 
-						&& owningTorrent.Peers.Available >= owningTorrent.Settings.MaxConnections )
+						&& nextPeer.Monitor.DataBytesDownloaded > 0
+						&& owningTorrent.Peers.Available >= owningTorrent.Settings.MaxConnections)
 					{
 						// Calculate an inactive time.
 						// Base time is time since the last message (in seconds)
@@ -115,7 +115,7 @@ namespace MonoTorrent.Client
 						TimeSpan timeSinceLastBlock = DateTime.Now.Subtract(nextPeer.LastBlockReceived);
 						int calculatedInactiveTime = Convert.ToInt32(timeSinceLastBlock.TotalSeconds - Convert.ToInt32(nextPeer.Monitor.DataBytesDownloaded / owningTorrent.Settings.ConnectionRetentionFactor));
 						// Register as the least attractive candidate if the calculated time is more than the idle wait time and more than any other candidate
-						if (calculatedInactiveTime > owningTorrent.Settings.TimeToWaitUntilIdle.TotalSeconds  && calculatedInactiveTime > longestCalculatedInactiveTime)
+						if (calculatedInactiveTime > owningTorrent.Settings.TimeToWaitUntilIdle.TotalSeconds && calculatedInactiveTime > longestCalculatedInactiveTime)
 						{
 							longestCalculatedInactiveTime = calculatedInactiveTime;
 							leastAttractiveCandidate = i;

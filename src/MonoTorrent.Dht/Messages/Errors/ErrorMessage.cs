@@ -39,51 +39,51 @@ using MonoTorrent.Dht;
 
 namespace MonoTorrent.Dht.Messages
 {
-    internal class ErrorMessage : Message
-    {
-        private static readonly BEncodedString ErrorListKey = "e";
-        internal static readonly BEncodedString ErrorType = "e";
+	internal class ErrorMessage : Message
+	{
+		private static readonly BEncodedString ErrorListKey = "e";
+		internal static readonly BEncodedString ErrorType = "e";
 
-        internal override NodeId Id
-        {
-            get { return new NodeId((BEncodedString)""); }
-        }
-        private BEncodedList ErrorList
-        {
-            get { return (BEncodedList)properties[ErrorListKey]; }
-        }
-		
+		internal override NodeId Id
+		{
+			get { return new NodeId((BEncodedString)""); }
+		}
+		private BEncodedList ErrorList
+		{
+			get { return (BEncodedList)properties[ErrorListKey]; }
+		}
+
 		private ErrorCode ErrorCode
-        {
-            get { return ((ErrorCode)((BEncodedNumber)ErrorList[0]).Number); }
-        }
-		
+		{
+			get { return ((ErrorCode)((BEncodedNumber)ErrorList[0]).Number); }
+		}
+
 		private string Message
-        {
-            get { return ((BEncodedString)ErrorList[1]).Text; }
-        }
-		
-        public ErrorMessage(ErrorCode error, string message)
-            : base(ErrorType)
-        {
-		    BEncodedList l = new BEncodedList();
-		    l.Add(new BEncodedNumber((int)error));
+		{
+			get { return ((BEncodedString)ErrorList[1]).Text; }
+		}
+
+		public ErrorMessage(ErrorCode error, string message)
+			: base(ErrorType)
+		{
+			BEncodedList l = new BEncodedList();
+			l.Add(new BEncodedNumber((int)error));
 			l.Add(new BEncodedString(message));
-            properties.Add(ErrorListKey, l);
-        }
+			properties.Add(ErrorListKey, l);
+		}
 
-        public ErrorMessage(BEncodedDictionary d)
-            : base(d)
-        {
+		public ErrorMessage(BEncodedDictionary d)
+			: base(d)
+		{
 
-        }
-        
-        public override void Handle(DhtEngine engine, Node node)
-        {
-            base.Handle(engine, node);
+		}
 
-            throw new MessageException(ErrorCode, Message);
-        }
-    }
+		public override void Handle(DhtEngine engine, Node node)
+		{
+			base.Handle(engine, node);
+
+			throw new MessageException(ErrorCode, Message);
+		}
+	}
 }
 #endif

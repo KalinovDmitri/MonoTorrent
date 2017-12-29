@@ -32,18 +32,18 @@ using MonoTorrent.BEncoding;
 
 namespace MonoTorrent
 {
-    public interface IDhtEngine : IDisposable
-    {
-        bool Disposed { get; }
-        event EventHandler<PeersFoundEventArgs> PeersFound;
-        byte[] SaveNodes();
-        void Add(BEncodedList nodes);
-        void Announce(InfoHash infohash, int port);
-        void GetPeers(InfoHash infohash);
-        void Start();
-        void Start(byte[] initialNodes);
-        DhtState State { get; }
-        event EventHandler StateChanged;
-        void Stop();
-    }
+	public interface IDhtEngine : IDisposable
+	{
+		bool Disposed { get; }
+		event EventHandler<PeersFoundEventArgs> PeersFound;
+		byte[] SaveNodes();
+		void Add(BEncodedList nodes);
+		void Announce(InfoHash infohash, int port);
+		void GetPeers(InfoHash infohash);
+		void Start();
+		void Start(byte[] initialNodes);
+		DhtState State { get; }
+		event EventHandler StateChanged;
+		void Stop();
+	}
 }

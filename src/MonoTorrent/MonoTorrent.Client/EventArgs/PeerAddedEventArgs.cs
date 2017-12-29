@@ -33,33 +33,33 @@ using MonoTorrent.Common;
 
 namespace MonoTorrent.Client
 {
-    /// <summary>
-    /// Provides the data needed to handle a PeersAdded event
-    /// </summary>
-    public class PeerAddedEventArgs : TorrentEventArgs
-    {
-        #region Member Variables
-        /// <summary>
-        /// The number of peers that were added in the last update
-        /// </summary>
-        public Peer Peer
-        {
-            get { return this.peer; }
-        }
-        private Peer peer;
-        #endregion
+	/// <summary>
+	/// Provides the data needed to handle a PeersAdded event
+	/// </summary>
+	public class PeerAddedEventArgs : TorrentEventArgs
+	{
+		#region Member Variables
+		/// <summary>
+		/// The number of peers that were added in the last update
+		/// </summary>
+		public Peer Peer
+		{
+			get { return this.peer; }
+		}
+		private Peer peer;
+		#endregion
 
 
-        #region Constructors
-        /// <summary>
-        /// Creates a new PeersAddedEventArgs
-        /// </summary>
-        /// <param name="peersAdded">The number of peers just added</param>
-        public PeerAddedEventArgs(TorrentManager manager, Peer peerAdded)
-            : base(manager)
-        {
-            this.peer = peerAdded;
-        }
-        #endregion
-    }
+		#region Constructors
+		/// <summary>
+		/// Creates a new PeersAddedEventArgs
+		/// </summary>
+		/// <param name="peersAdded">The number of peers just added</param>
+		public PeerAddedEventArgs(TorrentManager manager, Peer peerAdded)
+			: base(manager)
+		{
+			this.peer = peerAdded;
+		}
+		#endregion
+	}
 }

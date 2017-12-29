@@ -4,9 +4,9 @@ using System.Text;
 
 namespace MonoTorrent.Client
 {
-    public enum TransferType
-    {
-        Data,
-        Protocol
-    }
+	public enum TransferType
+	{
+		Data,
+		Protocol
+	}
 }

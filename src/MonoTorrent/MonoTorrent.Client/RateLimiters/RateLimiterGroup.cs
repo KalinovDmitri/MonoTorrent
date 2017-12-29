@@ -34,53 +34,54 @@ using System.Text;
 
 namespace MonoTorrent.Client
 {
-    class RateLimiterGroup : IRateLimiter
-    {
-        List<IRateLimiter> limiters;
+	class RateLimiterGroup : IRateLimiter
+	{
+		List<IRateLimiter> limiters;
 
-        public bool Unlimited
-        {
-            get {
-                for (int i = 0; i < limiters.Count; i++)
-                    if (!limiters [i].Unlimited)
-                        return false;
-                return true;
-            }
-        }
+		public bool Unlimited
+		{
+			get
+			{
+				for (int i = 0; i < limiters.Count; i++)
+					if (!limiters[i].Unlimited)
+						return false;
+				return true;
+			}
+		}
 
-        public RateLimiterGroup()
-        {
-            limiters = new List<IRateLimiter>();
-        }
+		public RateLimiterGroup()
+		{
+			limiters = new List<IRateLimiter>();
+		}
 
-        public void Add(IRateLimiter limiter)
-        {
-            Check.Limiter(limiter);
-            limiters.Add(limiter);
-        }
+		public void Add(IRateLimiter limiter)
+		{
+			Check.Limiter(limiter);
+			limiters.Add(limiter);
+		}
 
-        public void Remove(IRateLimiter limiter)
-        {
-            Check.Limiter(limiter);
-            limiters.Remove(limiter);
-        }
+		public void Remove(IRateLimiter limiter)
+		{
+			Check.Limiter(limiter);
+			limiters.Remove(limiter);
+		}
 
-        public bool TryProcess(int amount)
-        {
-            for (int i = 0; i < limiters.Count; i++)
-            {
-                if (limiters[i].Unlimited)
-                    continue;
-                else if (!limiters[i].TryProcess(amount))
-                    return false;
-            }
-            return true;
-        }
+		public bool TryProcess(int amount)
+		{
+			for (int i = 0; i < limiters.Count; i++)
+			{
+				if (limiters[i].Unlimited)
+					continue;
+				else if (!limiters[i].TryProcess(amount))
+					return false;
+			}
+			return true;
+		}
 
-        public void UpdateChunks (int maxRate, int actualRate)
-        {
-            for (int i = 0; i < limiters.Count; i++)
-                limiters [i].UpdateChunks (maxRate, actualRate);
-        }
-    }
+		public void UpdateChunks(int maxRate, int actualRate)
+		{
+			for (int i = 0; i < limiters.Count; i++)
+				limiters[i].UpdateChunks(maxRate, actualRate);
+		}
+	}
 }

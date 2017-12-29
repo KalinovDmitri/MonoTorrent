@@ -36,124 +36,124 @@ using MonoTorrent.Client.Encryption;
 
 namespace MonoTorrent.Client.Connections
 {
-    public class IPV4Connection : IConnection
-    {
-        private bool isIncoming;
-        private IPEndPoint endPoint;
-        private Socket socket;
-        private Uri uri;
+	public class IPV4Connection : IConnection
+	{
+		private bool isIncoming;
+		private IPEndPoint endPoint;
+		private Socket socket;
+		private Uri uri;
 
-        #region Member Variables
+		#region Member Variables
 
-        public bool CanReconnect
-        {
-            get { return !isIncoming; }
-        }
+		public bool CanReconnect
+		{
+			get { return !isIncoming; }
+		}
 
-        public bool Connected
-        {
-            get { return socket.Connected; }
-        }
+		public bool Connected
+		{
+			get { return socket.Connected; }
+		}
 
-        EndPoint IConnection.EndPoint
-        {
-            get { return endPoint; }
-        }
+		EndPoint IConnection.EndPoint
+		{
+			get { return endPoint; }
+		}
 
-        public IPEndPoint EndPoint
-        {
-            get { return this.endPoint; }
-        }
+		public IPEndPoint EndPoint
+		{
+			get { return this.endPoint; }
+		}
 
-        public bool IsIncoming
-        {
-            get { return isIncoming; }
-        }
+		public bool IsIncoming
+		{
+			get { return isIncoming; }
+		}
 
-        public Uri Uri
-        {
-            get { return uri; }
-        }
+		public Uri Uri
+		{
+			get { return uri; }
+		}
 
-        #endregion
-
-
-        #region Constructors
-
-        public IPV4Connection(Uri uri)
-            : this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), 
-                   new IPEndPoint(IPAddress.Parse(uri.Host), uri.Port),
-                   false)
-        {
-            this.uri = uri;
-        }
-
-        public IPV4Connection(IPEndPoint endPoint)
-            : this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), endPoint, false)
-        {
-
-        }
-
-        public IPV4Connection(Socket socket, bool isIncoming)
-            : this(socket, (IPEndPoint)socket.RemoteEndPoint, isIncoming)
-        {
-
-        }
+		#endregion
 
 
-        private IPV4Connection(Socket socket, IPEndPoint endpoint, bool isIncoming)
-        {
-            this.socket = socket;
-            this.endPoint = endpoint;
-            this.isIncoming = isIncoming;
-        }
+		#region Constructors
 
-        #endregion
+		public IPV4Connection(Uri uri)
+			: this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp),
+				   new IPEndPoint(IPAddress.Parse(uri.Host), uri.Port),
+				   false)
+		{
+			this.uri = uri;
+		}
+
+		public IPV4Connection(IPEndPoint endPoint)
+			: this(new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp), endPoint, false)
+		{
+
+		}
+
+		public IPV4Connection(Socket socket, bool isIncoming)
+			: this(socket, (IPEndPoint)socket.RemoteEndPoint, isIncoming)
+		{
+
+		}
 
 
-        #region Async Methods
+		private IPV4Connection(Socket socket, IPEndPoint endpoint, bool isIncoming)
+		{
+			this.socket = socket;
+			this.endPoint = endpoint;
+			this.isIncoming = isIncoming;
+		}
 
-        public byte[] AddressBytes
-        {
-            get { return this.endPoint.Address.GetAddressBytes(); }
-        }
+		#endregion
 
-        public IAsyncResult BeginConnect(AsyncCallback peerEndCreateConnection, object state)
-        {
-            return this.socket.BeginConnect(this.endPoint, peerEndCreateConnection, state);
-        }
 
-        public IAsyncResult BeginReceive(byte[] buffer, int offset, int count, AsyncCallback asyncCallback, object state)
-        {
-            return this.socket.BeginReceive(buffer, offset, count, SocketFlags.None, asyncCallback, state);
-        }
+		#region Async Methods
 
-        public IAsyncResult BeginSend(byte[] buffer, int offset, int count, AsyncCallback asyncCallback, object state)
-        {
-            return this.socket.BeginSend(buffer, offset, count, SocketFlags.None, asyncCallback, state);
-        }
+		public byte[] AddressBytes
+		{
+			get { return this.endPoint.Address.GetAddressBytes(); }
+		}
 
-        public void Dispose()
-        {
-            ((IDisposable)socket).Dispose();
-        }
+		public IAsyncResult BeginConnect(AsyncCallback peerEndCreateConnection, object state)
+		{
+			return this.socket.BeginConnect(this.endPoint, peerEndCreateConnection, state);
+		}
 
-        public void EndConnect(IAsyncResult result)
-        {
-            this.socket.EndConnect(result);
-        }
+		public IAsyncResult BeginReceive(byte[] buffer, int offset, int count, AsyncCallback asyncCallback, object state)
+		{
+			return this.socket.BeginReceive(buffer, offset, count, SocketFlags.None, asyncCallback, state);
+		}
 
-        public int EndSend(IAsyncResult result)
-        {
-            return this.socket.EndSend(result);
-        }
+		public IAsyncResult BeginSend(byte[] buffer, int offset, int count, AsyncCallback asyncCallback, object state)
+		{
+			return this.socket.BeginSend(buffer, offset, count, SocketFlags.None, asyncCallback, state);
+		}
 
-        public int EndReceive(IAsyncResult result)
-        {
-            
-            return this.socket.EndReceive(result);
-        }
+		public void Dispose()
+		{
+			((IDisposable)socket).Dispose();
+		}
 
-        #endregion
-    }
+		public void EndConnect(IAsyncResult result)
+		{
+			this.socket.EndConnect(result);
+		}
+
+		public int EndSend(IAsyncResult result)
+		{
+			return this.socket.EndSend(result);
+		}
+
+		public int EndReceive(IAsyncResult result)
+		{
+
+			return this.socket.EndReceive(result);
+		}
+
+		#endregion
+	}
 }

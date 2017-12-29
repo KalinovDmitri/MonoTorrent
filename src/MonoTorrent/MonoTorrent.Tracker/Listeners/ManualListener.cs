@@ -6,35 +6,35 @@ using System.Net;
 
 namespace MonoTorrent.Tracker.Listeners
 {
-    public class ManualListener : ListenerBase
-    {
-        private bool running;
+	public class ManualListener : ListenerBase
+	{
+		private bool running;
 
-        public override bool Running
-        {
-            get { return running; }
-        }
+		public override bool Running
+		{
+			get { return running; }
+		}
 
-        public override void Start()
-        {
-            running = true;
-        }
+		public override void Start()
+		{
+			running = true;
+		}
 
-        public override void Stop()
-        {
-            running = false;
-        }
+		public override void Stop()
+		{
+			running = false;
+		}
 
-        public BEncodedValue Handle(string rawUrl, IPAddress remoteAddress)
-        {
-            if (rawUrl == null)
-                throw new ArgumentNullException("rawUrl");
-            if (remoteAddress == null)
-                throw new ArgumentOutOfRangeException("remoteAddress");
+		public BEncodedValue Handle(string rawUrl, IPAddress remoteAddress)
+		{
+			if (rawUrl == null)
+				throw new ArgumentNullException("rawUrl");
+			if (remoteAddress == null)
+				throw new ArgumentOutOfRangeException("remoteAddress");
 
-            rawUrl = rawUrl.Substring(rawUrl.LastIndexOf('/'));
-            bool isScrape = rawUrl.StartsWith("/scrape", StringComparison.OrdinalIgnoreCase);
-            return Handle(rawUrl, remoteAddress, isScrape);
-        }
-    }
+			rawUrl = rawUrl.Substring(rawUrl.LastIndexOf('/'));
+			bool isScrape = rawUrl.StartsWith("/scrape", StringComparison.OrdinalIgnoreCase);
+			return Handle(rawUrl, remoteAddress, isScrape);
+		}
+	}
 }

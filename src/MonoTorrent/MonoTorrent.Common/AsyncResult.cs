@@ -33,97 +33,97 @@ using System.Threading;
 
 namespace MonoTorrent.Common
 {
-    public class AsyncResult : IAsyncResult
-    {
-        #region Member Variables
+	public class AsyncResult : IAsyncResult
+	{
+		#region Member Variables
 
-        private object asyncState;
-        private AsyncCallback callback;
-        private bool completedSyncronously;
-        private bool isCompleted;
-        private Exception savedException;
-        private ManualResetEvent waitHandle;
+		private object asyncState;
+		private AsyncCallback callback;
+		private bool completedSyncronously;
+		private bool isCompleted;
+		private Exception savedException;
+		private ManualResetEvent waitHandle;
 
-        #endregion Member Variables
-
-
-        #region Properties
-
-        public object AsyncState
-        {
-            get { return asyncState; }
-        }
-
-        WaitHandle IAsyncResult.AsyncWaitHandle
-        {
-            get { return waitHandle; }
-        }
-
-        protected internal ManualResetEvent AsyncWaitHandle
-        {
-            get { return waitHandle; }
-        }
-
-        internal AsyncCallback Callback
-        {
-            get { return callback; }
-        }
-
-        public bool CompletedSynchronously
-        {
-            get { return completedSyncronously; }
-            protected internal set { completedSyncronously = value; }
-        }
-
-        public bool IsCompleted
-        {
-            get { return isCompleted; }
-            protected internal set { isCompleted = value; }
-        }
-
-        protected internal Exception SavedException
-        {
-            get { return this.savedException; }
-            set { this.savedException = value; }
-        }
-
-        #endregion Properties
+		#endregion Member Variables
 
 
-        #region Constructors
+		#region Properties
 
-        public AsyncResult(AsyncCallback callback, object asyncState)
-        {
-            this.asyncState = asyncState;
-            this.callback = callback;
-            this.waitHandle = new ManualResetEvent(false);
-        }
+		public object AsyncState
+		{
+			get { return asyncState; }
+		}
 
-        #endregion Constructors
+		WaitHandle IAsyncResult.AsyncWaitHandle
+		{
+			get { return waitHandle; }
+		}
 
-        #region Methods
+		protected internal ManualResetEvent AsyncWaitHandle
+		{
+			get { return waitHandle; }
+		}
 
-        protected internal void Complete()
-        {
-            Complete(savedException);
-        }
-        protected internal void Complete(Exception ex)
-        {
-            // Ensure we only complete once - Needed because in encryption there could be
-            // both a pending send and pending receive so if there is an error, both will
-            // attempt to complete the encryption handshake meaning this is called twice.
-            if (isCompleted)
-                return;
+		internal AsyncCallback Callback
+		{
+			get { return callback; }
+		}
 
-            savedException = ex;
-            completedSyncronously = false;
-            isCompleted = true;
-            waitHandle.Set();
+		public bool CompletedSynchronously
+		{
+			get { return completedSyncronously; }
+			protected internal set { completedSyncronously = value; }
+		}
 
-            if (callback != null)
-                callback(this);
-        }
+		public bool IsCompleted
+		{
+			get { return isCompleted; }
+			protected internal set { isCompleted = value; }
+		}
 
-        #endregion Methods
-    }
+		protected internal Exception SavedException
+		{
+			get { return this.savedException; }
+			set { this.savedException = value; }
+		}
+
+		#endregion Properties
+
+
+		#region Constructors
+
+		public AsyncResult(AsyncCallback callback, object asyncState)
+		{
+			this.asyncState = asyncState;
+			this.callback = callback;
+			this.waitHandle = new ManualResetEvent(false);
+		}
+
+		#endregion Constructors
+
+		#region Methods
+
+		protected internal void Complete()
+		{
+			Complete(savedException);
+		}
+		protected internal void Complete(Exception ex)
+		{
+			// Ensure we only complete once - Needed because in encryption there could be
+			// both a pending send and pending receive so if there is an error, both will
+			// attempt to complete the encryption handshake meaning this is called twice.
+			if (isCompleted)
+				return;
+
+			savedException = ex;
+			completedSyncronously = false;
+			isCompleted = true;
+			waitHandle.Set();
+
+			if (callback != null)
+				callback(this);
+		}
+
+		#endregion Methods
+	}
 }

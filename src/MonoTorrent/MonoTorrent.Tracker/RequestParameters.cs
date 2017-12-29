@@ -7,38 +7,38 @@ using System.Net;
 
 namespace MonoTorrent.Tracker
 {
-    public abstract class RequestParameters : EventArgs
-    {
-        protected internal static readonly string FailureKey = "failure reason";
-        protected internal static readonly string WarningKey = "warning message";
+	public abstract class RequestParameters : EventArgs
+	{
+		protected internal static readonly string FailureKey = "failure reason";
+		protected internal static readonly string WarningKey = "warning message";
 
-        private IPAddress remoteAddress;
-        private NameValueCollection parameters;
-        private BEncodedDictionary response;
+		private IPAddress remoteAddress;
+		private NameValueCollection parameters;
+		private BEncodedDictionary response;
 
-        public abstract bool IsValid { get; }
-        
-        public NameValueCollection Parameters
-        {
-            get { return parameters; }
-        }
+		public abstract bool IsValid { get; }
 
-        public BEncodedDictionary Response
-        {
-            get { return response; }
-        }
+		public NameValueCollection Parameters
+		{
+			get { return parameters; }
+		}
 
-        public IPAddress RemoteAddress
-        {
-            get { return remoteAddress; }
-            protected set { remoteAddress = value; }
-        }
+		public BEncodedDictionary Response
+		{
+			get { return response; }
+		}
 
-        protected RequestParameters(NameValueCollection parameters, IPAddress address)
-        {
-            this.parameters = parameters;
-            remoteAddress = address;
-            response = new BEncodedDictionary();
-        }
-    }
+		public IPAddress RemoteAddress
+		{
+			get { return remoteAddress; }
+			protected set { remoteAddress = value; }
+		}
+
+		protected RequestParameters(NameValueCollection parameters, IPAddress address)
+		{
+			this.parameters = parameters;
+			remoteAddress = address;
+			response = new BEncodedDictionary();
+		}
+	}
 }

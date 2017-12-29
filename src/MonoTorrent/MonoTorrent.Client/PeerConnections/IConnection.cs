@@ -17,21 +17,21 @@ namespace MonoTorrent.Client.Connections
 
 		bool Connected { get; }
 
-        bool CanReconnect { get; }
+		bool CanReconnect { get; }
 
-        bool IsIncoming { get; }
+		bool IsIncoming { get; }
 
-        EndPoint EndPoint { get; }
+		EndPoint EndPoint { get; }
 
 		IAsyncResult BeginConnect(AsyncCallback callback, object state);
 		void EndConnect(IAsyncResult result);
-		
+
 		IAsyncResult BeginReceive(byte[] buffer, int offset, int count, AsyncCallback callback, object state);
-        int EndReceive(IAsyncResult result);
-		
+		int EndReceive(IAsyncResult result);
+
 		IAsyncResult BeginSend(byte[] buffer, int offset, int count, AsyncCallback callback, object state);
 		int EndSend(IAsyncResult result);
 
-        Uri Uri { get; }
+		Uri Uri { get; }
 	}
 }

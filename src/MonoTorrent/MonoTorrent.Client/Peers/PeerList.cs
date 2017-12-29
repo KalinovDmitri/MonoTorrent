@@ -59,7 +59,7 @@ namespace MonoTorrent.Client
 
 		#region Public Methods
 
-        public void Add(PeerId peer)
+		public void Add(PeerId peer)
 		{
 			peers.Add(peer);
 		}
@@ -70,7 +70,7 @@ namespace MonoTorrent.Client
 			scanIndex = 0;
 		}
 
-        public PeerId GetNextPeer()
+		public PeerId GetNextPeer()
 		{
 			if (scanIndex < peers.Count)
 			{
@@ -81,10 +81,10 @@ namespace MonoTorrent.Client
 				return null;
 		}
 
-        public PeerId GetFirstInterestedChokedPeer()
+		public PeerId GetFirstInterestedChokedPeer()
 		{
 			//Look for a choked peer
-            foreach (PeerId peer in peers)
+			foreach (PeerId peer in peers)
 				if (peer.Connection != null)
 					if (peer.IsInterested && peer.AmChoking)
 						return peer;
@@ -92,16 +92,16 @@ namespace MonoTorrent.Client
 			return null;
 		}
 
-        public PeerId GetOUPeer()
+		public PeerId GetOUPeer()
 		{
 			//Look for an untried peer that we haven't unchoked, or else return the choked peer with the longest unchoke interval
-            PeerId longestIntervalPeer = null;
+			PeerId longestIntervalPeer = null;
 			double longestIntervalPeerTime = 0;
-            foreach (PeerId peer in peers)
+			foreach (PeerId peer in peers)
 				if (peer.Connection != null)
 					if (peer.AmChoking)
 					{
-                        if (!peer.LastUnchoked.HasValue)
+						if (!peer.LastUnchoked.HasValue)
 							//This is an untried peer that we haven't unchoked, return it
 							return peer;
 						else
@@ -114,7 +114,7 @@ namespace MonoTorrent.Client
 							{
 								//Compare dates to determine whether the new one has a longer interval (but halve the interval
 								//  if the peer has never sent us any data)
-                                double newInterval = SecondsBetween(peer.LastUnchoked.Value, DateTime.Now);
+								double newInterval = SecondsBetween(peer.LastUnchoked.Value, DateTime.Now);
 								if (peer.Monitor.DataBytesDownloaded == 0)
 									newInterval = newInterval / 2;
 								if (newInterval > longestIntervalPeerTime)
@@ -130,7 +130,7 @@ namespace MonoTorrent.Client
 			return longestIntervalPeer;
 		}
 
-        public bool Includes(PeerId peer)
+		public bool Includes(PeerId peer)
 		{
 			//Return false if the supplied peer is null
 			if (peer == null)
@@ -171,7 +171,7 @@ namespace MonoTorrent.Client
 
 		#region Private Methods
 
-        private static int CompareCandidatePeersWhileDownloading(PeerId P1, PeerId P2)
+		private static int CompareCandidatePeersWhileDownloading(PeerId P1, PeerId P2)
 		{
 			//Comparer for candidate peers for use when the torrent is downloading
 			//First sort Am interested before !AmInterested
@@ -181,29 +181,29 @@ namespace MonoTorrent.Client
 				return 1;
 
 			//Both have the same AmInterested status, sort by download rate highest first
-            return P2.LastReviewDownloadRate.CompareTo(P1.LastReviewDownloadRate);
+			return P2.LastReviewDownloadRate.CompareTo(P1.LastReviewDownloadRate);
 		}
 
-        private static int CompareCandidatePeersWhileSeeding(PeerId P1, PeerId P2)
+		private static int CompareCandidatePeersWhileSeeding(PeerId P1, PeerId P2)
 		{
 			//Comparer for candidate peers for use when the torrent is seeding
 			//Sort by upload rate, largest first
-            return P2.LastReviewUploadRate.CompareTo(P1.LastReviewUploadRate);
+			return P2.LastReviewUploadRate.CompareTo(P1.LastReviewUploadRate);
 		}
 
-        private static int CompareNascentPeers(PeerId P1, PeerId P2)
+		private static int CompareNascentPeers(PeerId P1, PeerId P2)
 		{
 			//Comparer for nascent peers
 			//Sort most recent first
-            if (P1.LastUnchoked > P2.LastUnchoked)
+			if (P1.LastUnchoked > P2.LastUnchoked)
 				return -1;
-            else if (P1.LastUnchoked < P2.LastUnchoked)
+			else if (P1.LastUnchoked < P2.LastUnchoked)
 				return 1;
 			else
 				return 0;
 		}
 
-        private static int CompareOptimisticUnchokeCandidatesWhileDownloading(PeerId P1, PeerId P2)
+		private static int CompareOptimisticUnchokeCandidatesWhileDownloading(PeerId P1, PeerId P2)
 		{
 			//Comparer for optimistic unchoke candidates
 
@@ -214,25 +214,25 @@ namespace MonoTorrent.Client
 				return 1;
 
 			//Amount of data sent is equal (and probably 0), sort untried before tried
-            if (!P1.LastUnchoked.HasValue && P2.LastUnchoked.HasValue)
+			if (!P1.LastUnchoked.HasValue && P2.LastUnchoked.HasValue)
 				return -1;
-            else if (P1.LastUnchoked.HasValue && !P2.LastUnchoked.HasValue)
+			else if (P1.LastUnchoked.HasValue && !P2.LastUnchoked.HasValue)
 				return 1;
-            else if (!P1.LastUnchoked.HasValue && !P2.LastUnchoked.HasValue)
+			else if (!P1.LastUnchoked.HasValue && !P2.LastUnchoked.HasValue)
 				//Both untried, nothing to choose between them
 				return 0;
 
 			//Both peers have been unchoked
 			//Sort into descending order (most recent first)
-            if (P1.LastUnchoked > P2.LastUnchoked)
+			if (P1.LastUnchoked > P2.LastUnchoked)
 				return -1;
-            else if (P1.LastUnchoked < P2.LastUnchoked)
+			else if (P1.LastUnchoked < P2.LastUnchoked)
 				return 1;
 			else
 				return 0;
 		}
 
-        private static int CompareOptimisticUnchokeCandidatesWhileSeeding(PeerId P1, PeerId P2)
+		private static int CompareOptimisticUnchokeCandidatesWhileSeeding(PeerId P1, PeerId P2)
 		{
 			//Comparer for optimistic unchoke candidates
 
@@ -243,19 +243,19 @@ namespace MonoTorrent.Client
 				return 1;
 
 			//Amount of data sent is equal (and probably 0), sort untried before tried
-            if (!P1.LastUnchoked.HasValue && P2.LastUnchoked.HasValue)
+			if (!P1.LastUnchoked.HasValue && P2.LastUnchoked.HasValue)
 				return -1;
-            else if (P1.LastUnchoked.HasValue && !P2.LastUnchoked.HasValue)
+			else if (P1.LastUnchoked.HasValue && !P2.LastUnchoked.HasValue)
 				return 1;
-            else if (!P1.LastUnchoked.HasValue && P2.LastUnchoked.HasValue)
+			else if (!P1.LastUnchoked.HasValue && P2.LastUnchoked.HasValue)
 				//Both untried, nothing to choose between them
 				return 0;
 
 			//Both peers have been unchoked
 			//Sort into descending order (most recent first)
-            if (P1.LastUnchoked > P2.LastUnchoked)
+			if (P1.LastUnchoked > P2.LastUnchoked)
 				return -1;
-            else if (P1.LastUnchoked < P2.LastUnchoked)
+			else if (P1.LastUnchoked < P2.LastUnchoked)
 				return 1;
 			else
 				return 0;

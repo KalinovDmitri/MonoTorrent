@@ -34,159 +34,159 @@ using MonoTorrent.Client.Messages.Standard;
 
 namespace MonoTorrent.Client
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public struct Block
-    {
-        #region Private Fields
+	/// <summary>
+	/// 
+	/// </summary>
+	public struct Block
+	{
+		#region Private Fields
 
-        private Piece piece;
-        private int startOffset;
-        private PeerId requestedOff;
-        private int requestLength;
-        private bool requested;
-        private bool received;
-        private bool written;
+		private Piece piece;
+		private int startOffset;
+		private PeerId requestedOff;
+		private int requestLength;
+		private bool requested;
+		private bool received;
+		private bool written;
 
-        #endregion Private Fields
-
-
-        #region Properties
-
-        public int PieceIndex
-        {
-            get { return this.piece.Index; }
-        }
-
-        public bool Received
-        {
-            get { return this.received; }
-            internal set
-            {
-                if (value && !received)
-                    piece.TotalReceived++;
-
-                else if (!value && received)
-                    piece.TotalReceived--;
-
-                this.received = value;
-            }
-        }
-
-        public bool Requested
-        {
-            get { return this.requested; }
-            internal set
-            {
-                if (value && !requested)
-                    piece.TotalRequested++;
-
-                else if (!value && requested)
-                    piece.TotalRequested--;
-
-                this.requested = value;
-            }
-        }
-
-        public int RequestLength
-        {
-            get { return this.requestLength; }
-        }
-
-        public bool RequestTimedOut
-        {
-            get
-            { // 60 seconds timeout for a request to fulfill
-                return !Received && requestedOff != null &&
-                       (DateTime.Now - requestedOff.LastMessageReceived) > TimeSpan.FromMinutes(1);
-            }
-        }
-
-        internal PeerId RequestedOff
-        {
-            get { return this.requestedOff; }
-            set { this.requestedOff = value; }
-        }
-
-        public int StartOffset
-        {
-            get { return this.startOffset; }
-        }
-
-        public bool Written
-        {
-            get { return this.written; }
-            internal set
-            {
-                if (value && !written)
-                    piece.TotalWritten++;
-
-                else if (!value && written)
-                    piece.TotalWritten--;
-
-                this.written = value;
-            }
-        }
-
-        #endregion Properties
+		#endregion Private Fields
 
 
-        #region Constructors
+		#region Properties
 
-        internal Block(Piece piece, int startOffset, int requestLength)
-        {
-            this.requestedOff = null;
-            this.piece = piece;
-            this.received = false;
-            this.requested = false;
-            this.requestLength = requestLength;
-            this.startOffset = startOffset;
-            this.written = false;
-        }
+		public int PieceIndex
+		{
+			get { return this.piece.Index; }
+		}
 
-        #endregion
+		public bool Received
+		{
+			get { return this.received; }
+			internal set
+			{
+				if (value && !received)
+					piece.TotalReceived++;
+
+				else if (!value && received)
+					piece.TotalReceived--;
+
+				this.received = value;
+			}
+		}
+
+		public bool Requested
+		{
+			get { return this.requested; }
+			internal set
+			{
+				if (value && !requested)
+					piece.TotalRequested++;
+
+				else if (!value && requested)
+					piece.TotalRequested--;
+
+				this.requested = value;
+			}
+		}
+
+		public int RequestLength
+		{
+			get { return this.requestLength; }
+		}
+
+		public bool RequestTimedOut
+		{
+			get
+			{ // 60 seconds timeout for a request to fulfill
+				return !Received && requestedOff != null &&
+					   (DateTime.Now - requestedOff.LastMessageReceived) > TimeSpan.FromMinutes(1);
+			}
+		}
+
+		internal PeerId RequestedOff
+		{
+			get { return this.requestedOff; }
+			set { this.requestedOff = value; }
+		}
+
+		public int StartOffset
+		{
+			get { return this.startOffset; }
+		}
+
+		public bool Written
+		{
+			get { return this.written; }
+			internal set
+			{
+				if (value && !written)
+					piece.TotalWritten++;
+
+				else if (!value && written)
+					piece.TotalWritten--;
+
+				this.written = value;
+			}
+		}
+
+		#endregion Properties
 
 
-        #region Methods
+		#region Constructors
 
-        internal RequestMessage CreateRequest(PeerId id)
-        {
-            Requested = true;
-            RequestedOff = id;
-            RequestedOff.AmRequestingPiecesCount++;
-            return new RequestMessage(PieceIndex, this.startOffset, this.requestLength);
-        }
+		internal Block(Piece piece, int startOffset, int requestLength)
+		{
+			this.requestedOff = null;
+			this.piece = piece;
+			this.received = false;
+			this.requested = false;
+			this.requestLength = requestLength;
+			this.startOffset = startOffset;
+			this.written = false;
+		}
 
-        internal void CancelRequest()
-        {
-            Requested = false;
-            RequestedOff.AmRequestingPiecesCount--;
-            RequestedOff = null;
-        }
+		#endregion
 
-        public override bool Equals(object obj)
-        {
-            if (!(obj is Block))
-                return false;
 
-            Block other = (Block)obj;
-            return this.PieceIndex == other.PieceIndex && this.startOffset == other.startOffset && this.requestLength == other.requestLength;
-        }
+		#region Methods
 
-        public override int GetHashCode()
-        {
-            return this.PieceIndex ^ this.requestLength ^ this.startOffset;
-        }
+		internal RequestMessage CreateRequest(PeerId id)
+		{
+			Requested = true;
+			RequestedOff = id;
+			RequestedOff.AmRequestingPiecesCount++;
+			return new RequestMessage(PieceIndex, this.startOffset, this.requestLength);
+		}
 
-        internal static int IndexOf(Block[] blocks, int startOffset, int blockLength)
-        {
-            int index = startOffset / Piece.BlockSize;
-            if (blocks[index].startOffset != startOffset || blocks[index].RequestLength != blockLength)
-                return -1;
-            return index;
-        }
+		internal void CancelRequest()
+		{
+			Requested = false;
+			RequestedOff.AmRequestingPiecesCount--;
+			RequestedOff = null;
+		}
 
-        #endregion
-    }
+		public override bool Equals(object obj)
+		{
+			if (!(obj is Block))
+				return false;
+
+			Block other = (Block)obj;
+			return this.PieceIndex == other.PieceIndex && this.startOffset == other.startOffset && this.requestLength == other.requestLength;
+		}
+
+		public override int GetHashCode()
+		{
+			return this.PieceIndex ^ this.requestLength ^ this.startOffset;
+		}
+
+		internal static int IndexOf(Block[] blocks, int startOffset, int blockLength)
+		{
+			int index = startOffset / Piece.BlockSize;
+			if (blocks[index].startOffset != startOffset || blocks[index].RequestLength != blockLength)
+				return -1;
+			return index;
+		}
+
+		#endregion
+	}
 }

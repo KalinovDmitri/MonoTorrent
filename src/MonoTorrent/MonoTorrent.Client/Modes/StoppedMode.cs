@@ -11,7 +11,7 @@ namespace MonoTorrent.Client
 		{
 			get { return true; }
 		}
-		
+
 		public override TorrentState State
 		{
 			get { return TorrentState.Stopped; }

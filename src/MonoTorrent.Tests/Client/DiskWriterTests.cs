@@ -39,146 +39,138 @@ using System.Threading;
 
 namespace MonoTorrent.Client
 {
-    public class ExceptionWriter : PieceWriter
-    {
-        public bool exist, close, flush, move, read, write;
+	public class ExceptionWriter : PieceWriter
+	{
+		public bool exist, close, flush, move, read, write;
 
-        public override bool Exists(TorrentFile file)
-        {
-            if (exist)
-                throw new Exception("exists");
-            return true;
-        }
+		public override bool Exists(TorrentFile file)
+		{
+			if (exist)
+				throw new Exception("exists");
+			return true;
+		}
 
-        public override void Close(TorrentFile file)
-        {
-            if (close)
-                throw new Exception("close");
-        }
+		public override void Close(TorrentFile file)
+		{
+			if (close)
+				throw new Exception("close");
+		}
 
-        public override void Flush(TorrentFile file)
-        {
-            if (flush)
-                throw new Exception("flush");
-        }
+		public override void Flush(TorrentFile file)
+		{
+			if (flush)
+				throw new Exception("flush");
+		}
 
-        public override void Move(string oldPath, string newPath, bool ignoreExisting)
-        {
-            if (move)
-                throw new Exception("move");
-        }
+		public override void Move(string oldPath, string newPath, bool ignoreExisting)
+		{
+			if (move)
+				throw new Exception("move");
+		}
 
-        public override int Read(TorrentFile file, long offset, byte[] buffer, int bufferOffset, int count)
-        {
-            if (read)
-                throw new Exception("read");
-            return count;
-        }
+		public override int Read(TorrentFile file, long offset, byte[] buffer, int bufferOffset, int count)
+		{
+			if (read)
+				throw new Exception("read");
+			return count;
+		}
 
-        public override void Write(TorrentFile file, long offset, byte[] buffer, int bufferOffset, int count)
-        {
-            if (write)
-                throw new Exception("write");
-        }
-    }
+		public override void Write(TorrentFile file, long offset, byte[] buffer, int bufferOffset, int count)
+		{
+			if (write)
+				throw new Exception("write");
+		}
+	}
 
-    [TestFixture]
-    public class DiskWriterTests
-    {
-        byte [] data = new byte [Piece.BlockSize];
-        DiskManager diskManager;
-        ManualResetEvent handle;
-        TestRig rig;
-        ExceptionWriter writer;
+	[TestFixture]
+	public class DiskWriterTests
+	{
+		byte[] data = new byte[Piece.BlockSize];
+		DiskManager diskManager;
+		ManualResetEvent handle;
+		TestRig rig;
+		ExceptionWriter writer;
+		
+		[SetUp]
+		public void Setup()
+		{
+			rig = TestRig.CreateMultiFile();
+			diskManager = rig.Engine.DiskManager;
 
-        [TestFixtureSetUp]
-        public void FixtureSetup()
-        {
-            rig = TestRig.CreateMultiFile();
-            diskManager = rig.Engine.DiskManager;
-        }
+			writer = new ExceptionWriter();
+			diskManager.Writer = writer;
+			handle = new ManualResetEvent(false);
+			rig.Manager.Stop();
+		}
 
-        [SetUp]
-        public void Setup()
-        {
-            writer = new ExceptionWriter();
-            diskManager.Writer = writer;
-            handle = new ManualResetEvent(false);
-            rig.Manager.Stop();
-        }
+		[TearDown]
+		public void Teardown()
+		{
+			handle.Close();
+			rig.Dispose();
+		}
 
-        [TearDown]
-        public void Teardown()
-        {
-            handle.Close();
-        }
+		[Test]
+		public void CloseFail()
+		{
+			writer.close = true;
+			Hookup();
+			diskManager.CloseFileStreams(rig.Manager);
+			CheckFail();
+		}
 
-        [TestFixtureTearDown]
-        public void FixtureTeardown()
-        {
-            rig.Dispose();
-        }
+		[Test]
+		public void FlushFail()
+		{
+			writer.flush = true;
+			Hookup();
+			diskManager.QueueFlush(rig.Manager, 0);
+			CheckFail();
+		}
 
-        [Test]
-        public void CloseFail()
-        {
-            writer.close = true;
-            Hookup();
-            diskManager.CloseFileStreams(rig.Manager);
-            CheckFail();
-        }
+		[Test]
+		public void MoveFail()
+		{
+			writer.move = true;
+			Hookup();
+			diskManager.MoveFiles(rig.Manager, "root", true);
+			CheckFail();
+		}
 
-        [Test]
-        public void FlushFail()
-        {
-            writer.flush = true;
-            Hookup();
-            diskManager.QueueFlush(rig.Manager, 0);
-            CheckFail();
-        }
+		[Test]
+		public void ReadFail()
+		{
+			bool called = false;
+			writer.read = true;
+			Hookup();
+			diskManager.QueueRead(rig.Manager, 0, data, data.Length, delegate { called = true; });
+			CheckFail();
+			Assert.IsTrue(called, "#delegate called");
+		}
 
-        [Test]
-        public void MoveFail()
-        {
-            writer.move = true;
-            Hookup();
-            diskManager.MoveFiles(rig.Manager, "root", true);
-            CheckFail();
-        }
+		[Test]
+		public void WriteFail()
+		{
+			bool called = false;
+			writer.write = true;
+			Hookup();
+			diskManager.QueueWrite(rig.Manager, 0, data, data.Length, delegate { called = true; });
+			CheckFail();
+			Assert.IsTrue(called, "#delegate called");
+		}
 
-        [Test]
-        public void ReadFail()
-        {
-            bool called = false;
-            writer.read = true;
-            Hookup();
-            diskManager.QueueRead(rig.Manager, 0, data, data.Length, delegate { called = true; });
-            CheckFail();
-            Assert.IsTrue (called, "#delegate called");
-        }
+		void Hookup()
+		{
+			rig.Manager.TorrentStateChanged += delegate
+			{
+				if (rig.Manager.State == TorrentState.Error)
+					handle.Set();
+			};
+		}
 
-        [Test]
-        public void WriteFail()
-        {
-            bool called = false;
-            writer.write = true;
-            Hookup();
-            diskManager.QueueWrite(rig.Manager, 0, data, data.Length, delegate { called = true; });
-            CheckFail();
-            Assert.IsTrue (called, "#delegate called");
-        }
-
-        void Hookup()
-        {
-            rig.Manager.TorrentStateChanged += delegate {
-                if (rig.Manager.State == TorrentState.Error)
-                    handle.Set();
-            };
-        }
-
-        void CheckFail()
-        {
-            Assert.IsTrue(handle.WaitOne(5000, true), "Failure was not handled");
-        }
-    }
+		void CheckFail()
+		{
+			Assert.IsTrue(handle.WaitOne(5000, true), "Failure was not handled");
+		}
+	}
 }

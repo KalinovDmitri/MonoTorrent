@@ -42,104 +42,105 @@ using MonoTorrent.Client.Encryption;
 
 namespace MonoTorrent.Client
 {
-    class LocalPeerListener : Listener
-    {
-        const int MulticastPort = 6771;
-        static readonly IPAddress multicastIpAddress = IPAddress.Parse("239.192.152.143");
+	class LocalPeerListener : Listener
+	{
+		const int MulticastPort = 6771;
+		static readonly IPAddress multicastIpAddress = IPAddress.Parse("239.192.152.143");
 
-        private ClientEngine engine;
-        private UdpClient udpClient;
+		private ClientEngine engine;
+		private UdpClient udpClient;
 
-        public LocalPeerListener(ClientEngine engine)
-            : base(new IPEndPoint(IPAddress.Any, 6771))
-        {
-            this.engine = engine;
-        }
+		public LocalPeerListener(ClientEngine engine)
+			: base(new IPEndPoint(IPAddress.Any, 6771))
+		{
+			this.engine = engine;
+		}
 
-        public override void Start()
-        {
-            if (Status == ListenerStatus.Listening)
-                return;
-            try
-            {
-                udpClient = new UdpClient(MulticastPort);
-                udpClient.JoinMulticastGroup(multicastIpAddress);
-                udpClient.BeginReceive(OnReceiveCallBack, udpClient);
-                RaiseStatusChanged(ListenerStatus.Listening);
-            }
-            catch
-            {
-                RaiseStatusChanged(ListenerStatus.PortNotFree);
-            }
-        }
+		public override void Start()
+		{
+			if (Status == ListenerStatus.Listening)
+				return;
+			try
+			{
+				udpClient = new UdpClient(MulticastPort);
+				udpClient.JoinMulticastGroup(multicastIpAddress);
+				udpClient.BeginReceive(OnReceiveCallBack, udpClient);
+				RaiseStatusChanged(ListenerStatus.Listening);
+			}
+			catch
+			{
+				RaiseStatusChanged(ListenerStatus.PortNotFree);
+			}
+		}
 
-        public override void Stop()
-        {
-            if (Status == ListenerStatus.NotListening)
-                return;
+		public override void Stop()
+		{
+			if (Status == ListenerStatus.NotListening)
+				return;
 
-            RaiseStatusChanged(ListenerStatus.NotListening);
-            UdpClient c = udpClient;
-            udpClient = null;
-            if (c != null)
-                c.Close();
-        }
+			RaiseStatusChanged(ListenerStatus.NotListening);
+			UdpClient c = udpClient;
+			udpClient = null;
+			if (c != null)
+				c.Close();
+		}
 
-        private void OnReceiveCallBack(IAsyncResult ar)
-        {
-            UdpClient u = (UdpClient)ar.AsyncState;
-            IPEndPoint e = new IPEndPoint(IPAddress.Any, 0);
-            try
-            {
-                byte[] receiveBytes = u.EndReceive(ar, ref e);
-                string receiveString = Encoding.ASCII.GetString(receiveBytes);
+		private void OnReceiveCallBack(IAsyncResult ar)
+		{
+			UdpClient u = (UdpClient)ar.AsyncState;
+			IPEndPoint e = new IPEndPoint(IPAddress.Any, 0);
+			try
+			{
+				byte[] receiveBytes = u.EndReceive(ar, ref e);
+				string receiveString = Encoding.ASCII.GetString(receiveBytes);
 
-                Regex exp = new Regex("BT-SEARCH \\* HTTP/1.1\\r\\nHost: 239.192.152.143:6771\\r\\nPort: (?<port>[^@]+)\\r\\nInfohash: (?<hash>[^@]+)\\r\\n\\r\\n\\r\\n");
-                Match match = exp.Match(receiveString);
+				Regex exp = new Regex("BT-SEARCH \\* HTTP/1.1\\r\\nHost: 239.192.152.143:6771\\r\\nPort: (?<port>[^@]+)\\r\\nInfohash: (?<hash>[^@]+)\\r\\n\\r\\n\\r\\n");
+				Match match = exp.Match(receiveString);
 
-                if (!match.Success)
-                    return;
+				if (!match.Success)
+					return;
 
-                int portcheck = Convert.ToInt32(match.Groups["port"].Value);
-                if (portcheck < 0 || portcheck > 65535)
-                    return;
+				int portcheck = Convert.ToInt32(match.Groups["port"].Value);
+				if (portcheck < 0 || portcheck > 65535)
+					return;
 
-                TorrentManager manager = null;
-                InfoHash matchHash = InfoHash.FromHex(match.Groups["hash"].Value);
-                for (int i = 0; manager == null && i < engine.Torrents.Count; i ++)
-                    if (engine.Torrents [i].InfoHash == matchHash)
-                        manager = engine.Torrents [i];
-                
-                if (manager == null)
-                    return;
+				TorrentManager manager = null;
+				InfoHash matchHash = InfoHash.FromHex(match.Groups["hash"].Value);
+				for (int i = 0; manager == null && i < engine.Torrents.Count; i++)
+					if (engine.Torrents[i].InfoHash == matchHash)
+						manager = engine.Torrents[i];
 
-                Uri uri = new Uri("tcp://" + e.Address.ToString() + ':' + match.Groups["port"].Value);
-                Peer peer = new Peer("", uri, EncryptionTypes.All);
+				if (manager == null)
+					return;
 
-                // Add new peer to matched Torrent
-                if (!manager.HasMetadata || !manager.Torrent.IsPrivate)
-                {
-                    ClientEngine.MainLoop.Queue(delegate {
-                        int count = manager.AddPeersCore (peer);
-                        manager.RaisePeersFound(new LocalPeersAdded(manager, count, 1));
-                    });
-                }
-            }
-            catch
-            {
-                // Failed to receive data, ignore
-            }
-            finally
-            {
-                try
-                {
-                    u.BeginReceive(OnReceiveCallBack, ar.AsyncState);
-                }
-                catch
-                {
-                    // It's closed
-                }
-            }
-        }
-    }
+				Uri uri = new Uri("tcp://" + e.Address.ToString() + ':' + match.Groups["port"].Value);
+				Peer peer = new Peer("", uri, EncryptionTypes.All);
+
+				// Add new peer to matched Torrent
+				if (!manager.HasMetadata || !manager.Torrent.IsPrivate)
+				{
+					ClientEngine.MainLoop.Queue(delegate
+					{
+						int count = manager.AddPeersCore(peer);
+						manager.RaisePeersFound(new LocalPeersAdded(manager, count, 1));
+					});
+				}
+			}
+			catch
+			{
+				// Failed to receive data, ignore
+			}
+			finally
+			{
+				try
+				{
+					u.BeginReceive(OnReceiveCallBack, ar.AsyncState);
+				}
+				catch
+				{
+					// It's closed
+				}
+			}
+		}
+	}
 }

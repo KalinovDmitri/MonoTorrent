@@ -37,32 +37,32 @@ using System.Net;
 
 namespace MonoTorrent.Dht.Messages
 {
-    class FindNodeResponse : ResponseMessage
-    {
-        private static readonly BEncodedString NodesKey = "nodes";
+	class FindNodeResponse : ResponseMessage
+	{
+		private static readonly BEncodedString NodesKey = "nodes";
 
-        public BEncodedString Nodes
-        {
-            get { return (BEncodedString)Parameters[NodesKey]; }
-            set { Parameters[NodesKey] = value; }
-        }
+		public BEncodedString Nodes
+		{
+			get { return (BEncodedString)Parameters[NodesKey]; }
+			set { Parameters[NodesKey] = value; }
+		}
 
-        public FindNodeResponse(NodeId id, BEncodedValue transactionId)
-            : base(id, transactionId)
-        {
-            Parameters.Add(NodesKey, new BEncodedString());
-        }
+		public FindNodeResponse(NodeId id, BEncodedValue transactionId)
+			: base(id, transactionId)
+		{
+			Parameters.Add(NodesKey, new BEncodedString());
+		}
 
-        public FindNodeResponse(BEncodedDictionary d, QueryMessage m)
-            : base(d, m)
-        {
-        }
+		public FindNodeResponse(BEncodedDictionary d, QueryMessage m)
+			: base(d, m)
+		{
+		}
 
-        public override void Handle(DhtEngine engine, Node node)
-        {
-            base.Handle(engine, node);
-            engine.Add(Node.FromCompactNode(Nodes.TextBytes));
-        }
-    }
+		public override void Handle(DhtEngine engine, Node node)
+		{
+			base.Handle(engine, node);
+			engine.Add(Node.FromCompactNode(Nodes.TextBytes));
+		}
+	}
 }
 #endif

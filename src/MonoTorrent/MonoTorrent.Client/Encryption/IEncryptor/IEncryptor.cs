@@ -35,20 +35,20 @@ using MonoTorrent.Client.Connections;
 
 namespace MonoTorrent.Client.Encryption
 {
-    public interface IEncryptor
-    {
-        void AddPayload(byte[] buffer);
-        void AddPayload(byte[] buffer, int offset, int count);
+	public interface IEncryptor
+	{
+		void AddPayload(byte[] buffer);
+		void AddPayload(byte[] buffer, int offset, int count);
 
-        byte[] InitialData { get; }
+		byte[] InitialData { get; }
 
-        IAsyncResult BeginHandshake(IConnection socket, AsyncCallback callback, object state);
+		IAsyncResult BeginHandshake(IConnection socket, AsyncCallback callback, object state);
 
-        IAsyncResult BeginHandshake(IConnection socket, byte[] initialBuffer, int offset, int count, AsyncCallback callback, object state);
+		IAsyncResult BeginHandshake(IConnection socket, byte[] initialBuffer, int offset, int count, AsyncCallback callback, object state);
 
-        void EndHandshake(IAsyncResult result);
+		void EndHandshake(IAsyncResult result);
 
-        IEncryption Encryptor { get; }
-        IEncryption Decryptor { get; }
-    }
+		IEncryption Encryptor { get; }
+		IEncryption Decryptor { get; }
+	}
 }

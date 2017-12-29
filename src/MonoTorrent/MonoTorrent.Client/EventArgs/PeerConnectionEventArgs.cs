@@ -33,59 +33,59 @@ using MonoTorrent.Common;
 
 namespace MonoTorrent.Client
 {
-    /// <summary>
-    /// Provides the data needed to handle a PeerConnection event
-    /// </summary>
-    public class PeerConnectionEventArgs : TorrentEventArgs
-    {
-        #region Member Variables
+	/// <summary>
+	/// Provides the data needed to handle a PeerConnection event
+	/// </summary>
+	public class PeerConnectionEventArgs : TorrentEventArgs
+	{
+		#region Member Variables
 
-        public PeerId PeerID
-        {
-            get { return this.peerConnectionId; }
-        }
-        private PeerId peerConnectionId;
-
-
-        /// <summary>
-        /// The peer event that just happened
-        /// </summary>
-        public Direction ConnectionDirection
-        {
-            get { return this.connectionDirection; }
-        }
-        private Direction connectionDirection;
-
-        private String message;
-
-        /// <summary>
-        /// Any message that might be associated with this event
-        /// </summary>
-        public String Message
-        {
-            get { return message; }
-        }
-
-        #endregion
+		public PeerId PeerID
+		{
+			get { return this.peerConnectionId; }
+		}
+		private PeerId peerConnectionId;
 
 
-        #region Constructors
+		/// <summary>
+		/// The peer event that just happened
+		/// </summary>
+		public Direction ConnectionDirection
+		{
+			get { return this.connectionDirection; }
+		}
+		private Direction connectionDirection;
+
+		private String message;
+
+		/// <summary>
+		/// Any message that might be associated with this event
+		/// </summary>
+		public String Message
+		{
+			get { return message; }
+		}
+
+		#endregion
 
 
-        internal PeerConnectionEventArgs( TorrentManager manager, PeerId id, Direction direction )
-            : this( manager, id, direction, "" )
-        {
-
-        }
+		#region Constructors
 
 
-        internal PeerConnectionEventArgs( TorrentManager manager, PeerId id, Direction direction, String message )
-            : base( manager )
-        {
-            this.peerConnectionId = id;
-            this.connectionDirection = direction;
-            this.message = message;
-        }
-        #endregion
-    }
+		internal PeerConnectionEventArgs(TorrentManager manager, PeerId id, Direction direction)
+			: this(manager, id, direction, "")
+		{
+
+		}
+
+
+		internal PeerConnectionEventArgs(TorrentManager manager, PeerId id, Direction direction, String message)
+			: base(manager)
+		{
+			this.peerConnectionId = id;
+			this.connectionDirection = direction;
+			this.message = message;
+		}
+		#endregion
+	}
 }

@@ -34,62 +34,62 @@ using System.Threading;
 
 namespace MonoTorrent.Client
 {
-    class RateLimiter : IRateLimiter
-    {
-        bool unlimited;
-        int savedError;
-        int chunks;
+	class RateLimiter : IRateLimiter
+	{
+		bool unlimited;
+		int savedError;
+		int chunks;
 
-        public bool Unlimited
-        {
-            get { return unlimited; }
-        }
+		public bool Unlimited
+		{
+			get { return unlimited; }
+		}
 
-        public RateLimiter()
-        {
-            UpdateChunks(0, 0);
-        }
+		public RateLimiter()
+		{
+			UpdateChunks(0, 0);
+		}
 
-        public void UpdateChunks(int maxRate, int actualRate)
-        {
-            unlimited = maxRate == 0;
-            if (unlimited)
-                return;
+		public void UpdateChunks(int maxRate, int actualRate)
+		{
+			unlimited = maxRate == 0;
+			if (unlimited)
+				return;
 
-            // From experimentation, i found that increasing by 5% gives more accuate rate limiting
-            // for peer communications. For disk access and whatnot, a 5% overshoot is fine.
-            maxRate = (int)(maxRate * 1.05);
-            int errorRateDown = maxRate - actualRate;
-            int delta = (int)(0.4 * errorRateDown + 0.6 * this.savedError);
-            this.savedError = errorRateDown;
+			// From experimentation, i found that increasing by 5% gives more accuate rate limiting
+			// for peer communications. For disk access and whatnot, a 5% overshoot is fine.
+			maxRate = (int)(maxRate * 1.05);
+			int errorRateDown = maxRate - actualRate;
+			int delta = (int)(0.4 * errorRateDown + 0.6 * this.savedError);
+			this.savedError = errorRateDown;
 
 
-            int increaseAmount = (int)((maxRate + delta) / ConnectionManager.ChunkLength);
-            Interlocked.Add(ref this.chunks, increaseAmount);
-            if (this.chunks > (maxRate * 1.2 / ConnectionManager.ChunkLength))
-                Interlocked.Exchange(ref this.chunks, (int)(maxRate * 1.2 / ConnectionManager.ChunkLength));
+			int increaseAmount = (int)((maxRate + delta) / ConnectionManager.ChunkLength);
+			Interlocked.Add(ref this.chunks, increaseAmount);
+			if (this.chunks > (maxRate * 1.2 / ConnectionManager.ChunkLength))
+				Interlocked.Exchange(ref this.chunks, (int)(maxRate * 1.2 / ConnectionManager.ChunkLength));
 
-            if (this.chunks < (maxRate / ConnectionManager.ChunkLength / 2))
-                Interlocked.Exchange(ref this.chunks, (maxRate / ConnectionManager.ChunkLength / 2));
+			if (this.chunks < (maxRate / ConnectionManager.ChunkLength / 2))
+				Interlocked.Exchange(ref this.chunks, (maxRate / ConnectionManager.ChunkLength / 2));
 
-            if (maxRate == 0)
-                chunks = 0;
-        }
+			if (maxRate == 0)
+				chunks = 0;
+		}
 
-        public bool TryProcess(int amount)
-        {
-            if (Unlimited)
-                return true;
+		public bool TryProcess(int amount)
+		{
+			if (Unlimited)
+				return true;
 
-            int c;
-            do
-            {
-                c = chunks;
-                if (c < amount)
-                    return false;
+			int c;
+			do
+			{
+				c = chunks;
+				if (c < amount)
+					return false;
 
-            } while (Interlocked.CompareExchange(ref chunks, c - amount, c) != c);
-            return true;
-        }
-    }
+			} while (Interlocked.CompareExchange(ref chunks, c - amount, c) != c);
+			return true;
+		}
+	}
 }

@@ -33,79 +33,79 @@ using System.Text;
 
 namespace MonoTorrent.Common
 {
-    interface ICache<T>
-    {
-        int Count { get; }
-        T Dequeue();
-        void Enqueue (T instance);
-    }
+	interface ICache<T>
+	{
+		int Count { get; }
+		T Dequeue();
+		void Enqueue(T instance);
+	}
 
-    class Cache<T> : ICache<T>
-        where T : class, ICacheable, new()
-    {
-        bool autoCreate;
-        Queue<T> cache;
+	class Cache<T> : ICache<T>
+		where T : class, ICacheable, new()
+	{
+		bool autoCreate;
+		Queue<T> cache;
 
-        public int Count
-        {
-            get { return cache.Count; }
-        }
+		public int Count
+		{
+			get { return cache.Count; }
+		}
 
-        public Cache()
-            : this (false)
-        {
+		public Cache()
+			: this(false)
+		{
 
-        }
+		}
 
-        public Cache(bool autoCreate)
-        {
-            this.autoCreate = autoCreate;
-            this.cache = new Queue<T>();
-        }
+		public Cache(bool autoCreate)
+		{
+			this.autoCreate = autoCreate;
+			this.cache = new Queue<T>();
+		}
 
-        public T Dequeue()
-        {
-            if (cache.Count > 0)
-                return cache.Dequeue();
-            return autoCreate ? new T() : null;
-        }
+		public T Dequeue()
+		{
+			if (cache.Count > 0)
+				return cache.Dequeue();
+			return autoCreate ? new T() : null;
+		}
 
-        public void Enqueue(T instance)
-        {
-            instance.Initialise();
-            cache.Enqueue(instance);
-        }
-        public ICache<T> Synchronize()
-        {
-            return new SynchronizedCache<T>(this);
-        }
-    }
+		public void Enqueue(T instance)
+		{
+			instance.Initialise();
+			cache.Enqueue(instance);
+		}
+		public ICache<T> Synchronize()
+		{
+			return new SynchronizedCache<T>(this);
+		}
+	}
 
-    class SynchronizedCache<T> : ICache<T>
-    {
-        ICache<T> cache;
+	class SynchronizedCache<T> : ICache<T>
+	{
+		ICache<T> cache;
 
-        public int Count
-        {
-            get { return cache.Count; }
-        }
+		public int Count
+		{
+			get { return cache.Count; }
+		}
 
-        public SynchronizedCache(ICache<T> cache)
-        {
-            Check.Cache(cache);
-            this.cache = cache;
-        }
+		public SynchronizedCache(ICache<T> cache)
+		{
+			Check.Cache(cache);
+			this.cache = cache;
+		}
 
-        public T Dequeue()
-        {
-            lock (cache)
-                return cache.Dequeue();
-        }
+		public T Dequeue()
+		{
+			lock (cache)
+				return cache.Dequeue();
+		}
 
-        public void Enqueue(T instance)
-        {
-            lock (cache)
-                cache.Enqueue(instance);
-        }
-    }
+		public void Enqueue(T instance)
+		{
+			lock (cache)
+				cache.Enqueue(instance);
+		}
+	}
 }

@@ -34,72 +34,75 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MonoTorrent.Common {
+namespace MonoTorrent.Common
+{
 
-    public class UriQueryBuilder {
+	public class UriQueryBuilder
+	{
 
-        UriBuilder builder;
-        Dictionary<string, string> queryParams;
+		UriBuilder builder;
+		Dictionary<string, string> queryParams;
 
-        public UriQueryBuilder (string uri)
-            : this (new Uri (uri))
-            
-        {
+		public UriQueryBuilder(string uri)
+			: this(new Uri(uri))
 
-        }
+		{
 
-        public string this [string key]
-        {
-            get { return queryParams [key]; }
-            set { queryParams [key] = value; }
-        }
+		}
 
-        public UriQueryBuilder (Uri uri)
-        {
-            builder = new System.UriBuilder (uri);
-            queryParams = new Dictionary<string, string> (StringComparer.OrdinalIgnoreCase);
-            ParseParameters ();
-        }
+		public string this[string key]
+		{
+			get { return queryParams[key]; }
+			set { queryParams[key] = value; }
+		}
 
-        public UriQueryBuilder Add (string key, object value)
-        {
-            Check.Key (key);
-            Check.Value (value);
+		public UriQueryBuilder(Uri uri)
+		{
+			builder = new System.UriBuilder(uri);
+			queryParams = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+			ParseParameters();
+		}
 
-            queryParams [key] = value.ToString ();
-            return this;
-        }
+		public UriQueryBuilder Add(string key, object value)
+		{
+			Check.Key(key);
+			Check.Value(value);
 
-        public bool Contains (string key)
-        {
-            return queryParams.ContainsKey (key);
-        }
+			queryParams[key] = value.ToString();
+			return this;
+		}
 
-        void ParseParameters ()
-        {
-            if (builder.Query.Length == 0 || !builder.Query.StartsWith ("?"))
-                return;
+		public bool Contains(string key)
+		{
+			return queryParams.ContainsKey(key);
+		}
 
-            string [] strs = builder.Query.Remove (0, 1).Split ('&');
-            for (int i = 0; i < strs.Length; i++) {
-                string [] kv = strs [i].Split ('=');
-                if (kv.Length == 2)
-                    queryParams.Add (kv [0].Trim (), kv [1].Trim ());
-            }
-        }
+		void ParseParameters()
+		{
+			if (builder.Query.Length == 0 || !builder.Query.StartsWith("?"))
+				return;
 
-        public override string ToString ()
-        {
-            return ToUri ().OriginalString;
-        }
+			string[] strs = builder.Query.Remove(0, 1).Split('&');
+			for (int i = 0; i < strs.Length; i++)
+			{
+				string[] kv = strs[i].Split('=');
+				if (kv.Length == 2)
+					queryParams.Add(kv[0].Trim(), kv[1].Trim());
+			}
+		}
 
-        public Uri ToUri ()
-        {
-            string result = "";
-            foreach (KeyValuePair<string, string> keypair in queryParams)
-                result += keypair.Key + "=" + keypair.Value + "&";
-            builder.Query = result.Length == 0 ? result : result.Remove (result.Length - 1);
-            return builder.Uri;
-        }
-    }
+		public override string ToString()
+		{
+			return ToUri().OriginalString;
+		}
+
+		public Uri ToUri()
+		{
+			string result = "";
+			foreach (KeyValuePair<string, string> keypair in queryParams)
+				result += keypair.Key + "=" + keypair.Value + "&";
+			builder.Query = result.Length == 0 ? result : result.Remove(result.Length - 1);
+			return builder.Uri;
+		}
+	}
 }

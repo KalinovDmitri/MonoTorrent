@@ -35,18 +35,18 @@ using NUnit.Framework;
 
 namespace MonoTorrent.Client
 {
-    [TestFixture]
-    public class PeerTest
-    {
-        [Test]
-        public void CompactPeerTest()
-        {
-            string peerId = "12345abcde12345abcde";
-            Uri uri = new Uri("tcp://192.168.0.5:12345");
-            Peer p = new Peer(peerId, uri);
-            byte[] compact = p.CompactPeer();
-            Peer peer = Peer.Decode((BEncoding.BEncodedString)compact)[0];
-            Assert.AreEqual(p.ConnectionUri, peer.ConnectionUri);
-        }
-    }
+	[TestFixture]
+	public class PeerTest
+	{
+		[Test]
+		public void CompactPeerTest()
+		{
+			string peerId = "12345abcde12345abcde";
+			Uri uri = new Uri("tcp://192.168.0.5:12345");
+			Peer p = new Peer(peerId, uri);
+			byte[] compact = p.CompactPeer();
+			Peer peer = Peer.Decode((BEncoding.BEncodedString)compact)[0];
+			Assert.AreEqual(p.ConnectionUri, peer.ConnectionUri);
+		}
+	}
 }

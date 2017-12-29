@@ -36,202 +36,196 @@ using MonoTorrent.Client;
 
 namespace MonoTorrent.Client
 {
-    [TestFixture]
-    public class PriorityPickerTests
-    {
-        //static void Main()
-        //{
-        //    PriorityPickerTests t = new PriorityPickerTests();
-        //    t.FixtureSetup();
-        //    t.Setup();
-        //    t.PriorityMix();
-        //}
+	[TestFixture]
+	public class PriorityPickerTests
+	{
+		//static void Main()
+		//{
+		//    PriorityPickerTests t = new PriorityPickerTests();
+		//    t.FixtureSetup();
+		//    t.Setup();
+		//    t.PriorityMix();
+		//}
 
-        PeerId id;
-        PriorityPicker picker;
-        TestRig rig;
-        TestPicker tester;
+		PeerId id;
+		PriorityPicker picker;
+		TestRig rig;
+		TestPicker tester;
+		
+		[SetUp]
+		public void Setup()
+		{
+			rig = TestRig.CreateMultiFile();
+			id = new PeerId(new Peer(new string('a', 20), new Uri("tcp://BLAH")), rig.Manager);
+			id.BitField.SetAll(true);
+			tester = new TestPicker();
+			picker = new PriorityPicker(tester);
+			picker.Initialise(rig.Manager.Bitfield, rig.Torrent.Files, new List<Piece>());
+			foreach (TorrentFile file in rig.Torrent.Files)
+				file.Priority = Priority.Normal;
+		}
 
-        [TestFixtureSetUp]
-        public void FixtureSetup()
-        {
-            rig = TestRig.CreateMultiFile();
-            id = new PeerId(new Peer(new string('a', 20), new Uri("tcp://BLAH")), rig.Manager);
-            id.BitField.SetAll(true);
-        }
+		[TearDown]
+		public void Teardown()
+		{
+			rig?.Dispose();
+		}
 
-        [TestFixtureTearDown]
-        public void FixtureTeardown()
-        {
-            rig.Dispose();
-        }
+		[Test]
+		public void AllAllowed()
+		{
+			picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
+			Assert.AreEqual(1, tester.PickPieceBitfield.Count, "#1");
+			Assert.IsTrue(tester.PickPieceBitfield[0].AllTrue, "#2");
+		}
 
-        [SetUp]
-        public void Setup()
-        {
-            id.BitField.SetAll(true);
-            tester = new TestPicker();
-            picker = new PriorityPicker(tester);
-            picker.Initialise(rig.Manager.Bitfield, rig.Torrent.Files, new List<Piece>());
-            foreach (TorrentFile file in rig.Torrent.Files)
-                file.Priority = Priority.Normal;
-        }
+		[Test]
+		public void HighPriority()
+		{
+			rig.Torrent.Files[0].Priority = Priority.High;
+			rig.Torrent.Files[1].Priority = Priority.High;
 
-        [Test]
-        public void AllAllowed()
-        {
-            picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
-            Assert.AreEqual(1, tester.PickPieceBitfield.Count, "#1");
-            Assert.IsTrue(tester.PickPieceBitfield[0].AllTrue, "#2");
-        }
+			picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
+			Assert.AreEqual(2, tester.PickPieceBitfield.Count, "#1");
+			for (int i = 0; i < rig.Pieces; i++)
+			{
+				if (i <= rig.Torrent.Files[1].EndPieceIndex)
+					Assert.IsTrue(tester.PickPieceBitfield[0][i], "#2");
+				else
+					Assert.IsFalse(tester.PickPieceBitfield[0][i], "#2");
+			}
 
-        [Test]
-        public void HighPriority()
-        {
-            rig.Torrent.Files[0].Priority = Priority.High;
-            rig.Torrent.Files[1].Priority = Priority.High;
+			for (int i = 0; i < rig.Pieces; i++)
+			{
+				if (i < rig.Torrent.Files[1].EndPieceIndex)
+					Assert.IsFalse(tester.PickPieceBitfield[1][i], "#2");
+				else
+					Assert.IsTrue(tester.PickPieceBitfield[1][i], "#2");
+			}
+		}
 
-            picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
-            Assert.AreEqual(2, tester.PickPieceBitfield.Count, "#1");
-            for (int i = 0; i < rig.Pieces; i++)
-            {
-                if (i <= rig.Torrent.Files[1].EndPieceIndex)
-                    Assert.IsTrue(tester.PickPieceBitfield[0][i], "#2");
-                else
-                    Assert.IsFalse(tester.PickPieceBitfield[0][i], "#2");
-            }
+		[Test]
+		public void DoNotDownload()
+		{
+			rig.Torrent.Files[0].Priority = Priority.DoNotDownload;
+			rig.Torrent.Files[1].Priority = Priority.DoNotDownload;
 
-            for (int i = 0; i < rig.Pieces; i++)
-            {
-                if (i < rig.Torrent.Files[1].EndPieceIndex)
-                    Assert.IsFalse(tester.PickPieceBitfield[1][i], "#2");
-                else
-                    Assert.IsTrue(tester.PickPieceBitfield[1][i], "#2");
-            }
-        }
+			picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
+			Assert.AreEqual(1, tester.PickPieceBitfield.Count, "#1");
+			for (int i = 0; i < rig.Pieces; i++)
+			{
+				if (i < rig.Torrent.Files[1].EndPieceIndex)
+					Assert.IsFalse(tester.PickPieceBitfield[0][i], "#2");
+				else
+					Assert.IsTrue(tester.PickPieceBitfield[0][i], "#2");
+			}
+		}
 
-        [Test]
-        public void DoNotDownload()
-        {
-            rig.Torrent.Files[0].Priority = Priority.DoNotDownload;
-            rig.Torrent.Files[1].Priority = Priority.DoNotDownload;
+		[Test]
+		public void PriorityMix()
+		{
+			BitField bf;
+			TorrentFile file;
 
-            picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
-            Assert.AreEqual(1, tester.PickPieceBitfield.Count, "#1");
-            for (int i = 0; i < rig.Pieces; i++)
-            {
-                if (i < rig.Torrent.Files[1].EndPieceIndex)
-                    Assert.IsFalse(tester.PickPieceBitfield[0][i], "#2");
-                else
-                    Assert.IsTrue(tester.PickPieceBitfield[0][i], "#2");
-            }
-        }
+			rig.Torrent.Files[0].Priority = Priority.Immediate;
+			rig.Torrent.Files[1].Priority = Priority.Low;
+			rig.Torrent.Files[2].Priority = Priority.DoNotDownload;
+			rig.Torrent.Files[3].Priority = Priority.High;
 
-        [Test]
-        public void PriorityMix()
-        {
-            BitField bf;
-            TorrentFile file;
+			picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
 
-            rig.Torrent.Files[0].Priority = Priority.Immediate;
-            rig.Torrent.Files[1].Priority = Priority.Low;
-            rig.Torrent.Files[2].Priority = Priority.DoNotDownload;
-            rig.Torrent.Files[3].Priority = Priority.High;
+			Assert.AreEqual(3, tester.PickPieceBitfield.Count, "#1");
 
-            picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
+			bf = tester.PickPieceBitfield[0];
+			file = rig.Torrent.Files[0];
+			for (int i = 0; i < rig.Pieces; i++)
+			{
+				if (i >= file.StartPieceIndex && i <= file.EndPieceIndex)
+					Assert.IsTrue(bf[i]);
+				else
+					Assert.IsFalse(bf[i]);
+			}
 
-            Assert.AreEqual(3, tester.PickPieceBitfield.Count, "#1");
+			bf = tester.PickPieceBitfield[1];
+			file = rig.Torrent.Files[3];
+			for (int i = 0; i < rig.Pieces; i++)
+			{
+				if (i >= file.StartPieceIndex && i <= file.EndPieceIndex)
+					Assert.IsTrue(bf[i]);
+				else
+					Assert.IsFalse(bf[i]);
+			}
 
-            bf = tester.PickPieceBitfield[0];
-            file = rig.Torrent.Files[0];
-            for (int i = 0; i < rig.Pieces; i++)
-            {
-                if (i >= file.StartPieceIndex && i <= file.EndPieceIndex)
-                    Assert.IsTrue(bf[i]);
-                else
-                    Assert.IsFalse(bf[i]);
-            }
+			bf = tester.PickPieceBitfield[2];
+			file = rig.Torrent.Files[1];
+			for (int i = 0; i < rig.Pieces; i++)
+			{
+				if (i >= file.StartPieceIndex && i <= file.EndPieceIndex)
+					Assert.IsTrue(bf[i]);
+				else
+					Assert.IsFalse(bf[i]);
+			}
+		}
 
-            bf = tester.PickPieceBitfield[1];
-            file = rig.Torrent.Files[3];
-            for (int i = 0; i < rig.Pieces; i++)
-            {
-                if (i >= file.StartPieceIndex && i <= file.EndPieceIndex)
-                    Assert.IsTrue(bf[i]);
-                else
-                    Assert.IsFalse(bf[i]);
-            }
+		[Test]
+		public void SingleFileDoNotDownload()
+		{
+			this.picker.Initialise(rig.Manager.Bitfield, new TorrentFile[] { rig.Torrent.Files[0] }, new List<Piece>());
+			rig.Torrent.Files[0].Priority = Priority.DoNotDownload;
 
-            bf = tester.PickPieceBitfield[2];
-            file = rig.Torrent.Files[1];
-            for (int i = 0; i < rig.Pieces; i++)
-            {
-                if (i >= file.StartPieceIndex && i <= file.EndPieceIndex)
-                    Assert.IsTrue(bf[i]);
-                else
-                    Assert.IsFalse(bf[i]);
-            }
-        }
+			picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
+			Assert.AreEqual(0, tester.PickPieceBitfield.Count, "#1");
+		}
 
-        [Test]
-        public void SingleFileDoNotDownload()
-        {
-            this.picker.Initialise(rig.Manager.Bitfield, new TorrentFile[] { rig.Torrent.Files[0] }, new List<Piece>());
-            rig.Torrent.Files[0].Priority = Priority.DoNotDownload;
-            
-            picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
-            Assert.AreEqual(0, tester.PickPieceBitfield.Count, "#1");
-        }
+		[Test]
+		public void SingleFileNoneAvailable()
+		{
+			this.picker.Initialise(rig.Manager.Bitfield, new TorrentFile[] { rig.Torrent.Files[0] }, new List<Piece>());
+			id.BitField.SetAll(false);
 
-        [Test]
-        public void SingleFileNoneAvailable()
-        {
-            this.picker.Initialise(rig.Manager.Bitfield, new TorrentFile[] { rig.Torrent.Files[0] }, new List<Piece>());
-            id.BitField.SetAll(false);
+			picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
+			Assert.AreEqual(0, tester.PickPieceBitfield.Count, "#1");
+		}
 
-            picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
-            Assert.AreEqual(0, tester.PickPieceBitfield.Count, "#1");
-        }
+		[Test]
+		public void MultiFileNoneAvailable()
+		{
+			this.picker.Initialise(rig.Manager.Bitfield, rig.Torrent.Files, new List<Piece>());
+			id.BitField.SetAll(false);
 
-        [Test]
-        public void MultiFileNoneAvailable()
-        {
-            this.picker.Initialise(rig.Manager.Bitfield, rig.Torrent.Files, new List<Piece>());
-            id.BitField.SetAll(false);
+			picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
+			Assert.AreEqual(0, tester.PickPieceBitfield.Count, "#1");
+		}
 
-            picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
-            Assert.AreEqual(0, tester.PickPieceBitfield.Count, "#1");
-        }
+		[Test]
+		public void MultiFileAllNoDownload()
+		{
+			foreach (TorrentFile file in rig.Torrent.Files)
+				file.Priority = Priority.DoNotDownload;
 
-        [Test]
-        public void MultiFileAllNoDownload()
-        {
-            foreach (TorrentFile file in rig.Torrent.Files)
-                file.Priority = Priority.DoNotDownload;
+			picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
+			Assert.AreEqual(0, tester.PickPieceBitfield.Count, "#1");
+		}
 
-            picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
-            Assert.AreEqual(0, tester.PickPieceBitfield.Count, "#1");
-        }
+		[Test]
+		public void MultiFileOneAvailable()
+		{
+			foreach (TorrentFile file in rig.Torrent.Files)
+				file.Priority = Priority.DoNotDownload;
+			rig.Torrent.Files[0].Priority = Priority.High;
+			id.BitField.SetAll(false);
+			picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
+			Assert.AreEqual(0, tester.PickPieceBitfield.Count, "#1");
+		}
 
-        [Test]
-        public void MultiFileOneAvailable()
-        {
-            foreach (TorrentFile file in rig.Torrent.Files)
-                file.Priority = Priority.DoNotDownload;
-            rig.Torrent.Files[0].Priority = Priority.High;
-            id.BitField.SetAll(false);   
-            picker.PickPiece(id, id.BitField, new List<PeerId>(), 1, 0, rig.Pieces);
-            Assert.AreEqual(0, tester.PickPieceBitfield.Count, "#1");
-        }
-
-        [Test]
-        public void IsInteresting()
-        {
-            foreach (TorrentFile file in rig.Torrent.Files)
-                file.Priority = Priority.DoNotDownload;
-            rig.Torrent.Files[1].Priority = Priority.High;
-            id.BitField.SetAll(false).Set(0, true);
-            Assert.IsTrue(picker.IsInteresting(id.BitField));
-        }
-    }
+		[Test]
+		public void IsInteresting()
+		{
+			foreach (TorrentFile file in rig.Torrent.Files)
+				file.Priority = Priority.DoNotDownload;
+			rig.Torrent.Files[1].Priority = Priority.High;
+			id.BitField.SetAll(false).Set(0, true);
+			Assert.IsTrue(picker.IsInteresting(id.BitField));
+		}
+	}
 }

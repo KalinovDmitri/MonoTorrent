@@ -37,79 +37,79 @@ using MonoTorrent.Common;
 
 namespace MonoTorrent.Dht.Messages
 {
-    internal abstract class Message : MonoTorrent.Client.Messages.Message
-    {
-        internal static bool UseVersionKey = true;
+	internal abstract class Message : MonoTorrent.Client.Messages.Message
+	{
+		internal static bool UseVersionKey = true;
 
-        private static BEncodedString EmptyString = "";
-        protected static readonly BEncodedString IdKey = "id";
-        private static BEncodedString TransactionIdKey = "t";
-        private static BEncodedString VersionKey = "v";
-        private static BEncodedString MessageTypeKey = "y";
-        private static BEncodedString DhtVersion = VersionInfo.DhtClientVersion;
+		private static BEncodedString EmptyString = "";
+		protected static readonly BEncodedString IdKey = "id";
+		private static BEncodedString TransactionIdKey = "t";
+		private static BEncodedString VersionKey = "v";
+		private static BEncodedString MessageTypeKey = "y";
+		private static BEncodedString DhtVersion = VersionInfo.DhtClientVersion;
 
-        protected BEncodedDictionary properties = new BEncodedDictionary();
+		protected BEncodedDictionary properties = new BEncodedDictionary();
 
-        public BEncodedString ClientVersion
-        {
-            get
-            {
-                BEncodedValue val;
-                if (properties.TryGetValue(VersionKey, out val))
-                    return (BEncodedString)val;
-                return EmptyString;
-            }
-        }
+		public BEncodedString ClientVersion
+		{
+			get
+			{
+				BEncodedValue val;
+				if (properties.TryGetValue(VersionKey, out val))
+					return (BEncodedString)val;
+				return EmptyString;
+			}
+		}
 
-        internal abstract NodeId Id
-        {
-            get;
-        }
+		internal abstract NodeId Id
+		{
+			get;
+		}
 
-        public BEncodedString MessageType
-        {
-            get { return (BEncodedString)properties[MessageTypeKey]; }
-        }
+		public BEncodedString MessageType
+		{
+			get { return (BEncodedString)properties[MessageTypeKey]; }
+		}
 
-        public BEncodedValue TransactionId
-        {
-            get { return properties[TransactionIdKey]; }
-            set { properties[TransactionIdKey] = value; }
-        }
+		public BEncodedValue TransactionId
+		{
+			get { return properties[TransactionIdKey]; }
+			set { properties[TransactionIdKey] = value; }
+		}
 
 
-        protected Message(BEncodedString messageType)
-        {
-            properties.Add(TransactionIdKey, null);
-            properties.Add(MessageTypeKey, messageType);
-            if (UseVersionKey)
-                properties.Add(VersionKey, DhtVersion);
-        }
+		protected Message(BEncodedString messageType)
+		{
+			properties.Add(TransactionIdKey, null);
+			properties.Add(MessageTypeKey, messageType);
+			if (UseVersionKey)
+				properties.Add(VersionKey, DhtVersion);
+		}
 
-        protected Message(BEncodedDictionary dictionary)
-        {
-            properties = dictionary;
-        }
+		protected Message(BEncodedDictionary dictionary)
+		{
+			properties = dictionary;
+		}
 
-        public override int ByteLength
-        {
-            get { return properties.LengthInBytes(); }
-        }
+		public override int ByteLength
+		{
+			get { return properties.LengthInBytes(); }
+		}
 
-        public override void Decode(byte[] buffer, int offset, int length)
-        {
-            properties = BEncodedValue.Decode<BEncodedDictionary>(buffer, offset, length, false);
-        }
+		public override void Decode(byte[] buffer, int offset, int length)
+		{
+			properties = BEncodedValue.Decode<BEncodedDictionary>(buffer, offset, length, false);
+		}
 
-        public override int Encode(byte[] buffer, int offset)
-        {
-            return properties.Encode(buffer, offset);
-        }
+		public override int Encode(byte[] buffer, int offset)
+		{
+			return properties.Encode(buffer, offset);
+		}
 
-        public virtual void Handle(DhtEngine engine, Node node)
-        {
-            node.Seen();
-        }
-    }
+		public virtual void Handle(DhtEngine engine, Node node)
+		{
+			node.Seen();
+		}
+	}
 }
 #endif

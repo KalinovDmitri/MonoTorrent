@@ -33,62 +33,62 @@ using System.Net;
 
 namespace MonoTorrent.Client.Messages.Standard
 {
-    public class UnchokeMessage : PeerMessage
-    {
-        internal static readonly byte MessageId = 1;
-        private const int messageLength = 1;
+	public class UnchokeMessage : PeerMessage
+	{
+		internal static readonly byte MessageId = 1;
+		private const int messageLength = 1;
 
 
-        #region Constructors
-        
-        public UnchokeMessage()
-        {
-        }
+		#region Constructors
 
-        #endregion
+		public UnchokeMessage()
+		{
+		}
+
+		#endregion
 
 
-        #region Methods
+		#region Methods
 
-        public override int Encode(byte[] buffer, int offset)
-        {
+		public override int Encode(byte[] buffer, int offset)
+		{
 			int written = offset;
 
 			written += Write(buffer, written, messageLength);
 			written += Write(buffer, written, MessageId);
 
-            return CheckWritten(written - offset);
-        }
+			return CheckWritten(written - offset);
+		}
 
-        public override void Decode(byte[] buffer, int offset, int length)
-        {
-            // No decoding needed
-        }
+		public override void Decode(byte[] buffer, int offset, int length)
+		{
+			// No decoding needed
+		}
 
-        public override int ByteLength
-        {
-            get { return (messageLength + 4); }
-        }
-        #endregion
+		public override int ByteLength
+		{
+			get { return (messageLength + 4); }
+		}
+		#endregion
 
 
-        #region Overridden Methods
-        
-        public override string ToString()
-        {
-            return "UnChokeMessage";
-        }
+		#region Overridden Methods
 
-        public override bool Equals(object obj)
-        {
-            return (obj is UnchokeMessage);
-        }
+		public override string ToString()
+		{
+			return "UnChokeMessage";
+		}
 
-        public override int GetHashCode()
-        {
-            return this.ToString().GetHashCode();
-        }
+		public override bool Equals(object obj)
+		{
+			return (obj is UnchokeMessage);
+		}
 
-        #endregion
-    }
+		public override int GetHashCode()
+		{
+			return this.ToString().GetHashCode();
+		}
+
+		#endregion
+	}
 }

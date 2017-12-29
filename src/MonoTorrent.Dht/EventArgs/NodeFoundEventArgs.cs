@@ -36,19 +36,19 @@ using MonoTorrent.BEncoding;
 
 namespace MonoTorrent.Dht
 {
-    internal class NodeFoundEventArgs : EventArgs
-    {
-        private Node node;
-        
-        public NodeFoundEventArgs(Node node)
-        {
-            this.node = node;
-        }
-        
-        public Node Node
-        {
-            get { return node; }
-        }
-    }
+	internal class NodeFoundEventArgs : EventArgs
+	{
+		private Node node;
+
+		public NodeFoundEventArgs(Node node)
+		{
+			this.node = node;
+		}
+
+		public Node Node
+		{
+			get { return node; }
+		}
+	}
 }
 #endif

@@ -35,39 +35,39 @@ using MonoTorrent.BEncoding;
 
 namespace MonoTorrent.Dht.Messages
 {
-    internal abstract class ResponseMessage : Message
-    {
-        private static readonly BEncodedString ReturnValuesKey = "r";
-        internal static readonly BEncodedString ResponseType = "r";
-        protected QueryMessage queryMessage;
+	internal abstract class ResponseMessage : Message
+	{
+		private static readonly BEncodedString ReturnValuesKey = "r";
+		internal static readonly BEncodedString ResponseType = "r";
+		protected QueryMessage queryMessage;
 
-        internal override NodeId Id
-        {
-            get { return new NodeId((BEncodedString)Parameters[IdKey]); }
-        }
-        public BEncodedDictionary Parameters
-        {
-            get { return (BEncodedDictionary)properties[ReturnValuesKey]; }
-        }
+		internal override NodeId Id
+		{
+			get { return new NodeId((BEncodedString)Parameters[IdKey]); }
+		}
+		public BEncodedDictionary Parameters
+		{
+			get { return (BEncodedDictionary)properties[ReturnValuesKey]; }
+		}
 
-        public QueryMessage Query
-        {
-            get { return queryMessage; }
-        }
+		public QueryMessage Query
+		{
+			get { return queryMessage; }
+		}
 
-        protected ResponseMessage(NodeId id, BEncodedValue transactionId)
-            : base(ResponseType)
-        {
-            properties.Add(ReturnValuesKey, new BEncodedDictionary());
-            Parameters.Add(IdKey, id.BencodedString());
-            TransactionId = transactionId;
-        }
+		protected ResponseMessage(NodeId id, BEncodedValue transactionId)
+			: base(ResponseType)
+		{
+			properties.Add(ReturnValuesKey, new BEncodedDictionary());
+			Parameters.Add(IdKey, id.BencodedString());
+			TransactionId = transactionId;
+		}
 
-        protected ResponseMessage(BEncodedDictionary d, QueryMessage m)
-            : base(d)
-        {
-            queryMessage = m;
-        }
-    }
+		protected ResponseMessage(BEncodedDictionary d, QueryMessage m)
+			: base(d)
+		{
+			queryMessage = m;
+		}
+	}
 }
 #endif

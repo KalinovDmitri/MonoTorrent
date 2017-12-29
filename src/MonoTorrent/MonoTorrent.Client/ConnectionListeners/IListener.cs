@@ -34,15 +34,15 @@ using MonoTorrent.Common;
 
 namespace MonoTorrent.Client
 {
-    public interface IListener
-    {
-        event EventHandler<EventArgs> StatusChanged;
+	public interface IListener
+	{
+		event EventHandler<EventArgs> StatusChanged;
 
-        IPEndPoint Endpoint { get; }
-        ListenerStatus Status { get; }
+		IPEndPoint Endpoint { get; }
+		ListenerStatus Status { get; }
 
-        void ChangeEndpoint(IPEndPoint port);
-        void Start();
-        void Stop();
-    }
+		void ChangeEndpoint(IPEndPoint port);
+		void Start();
+		void Stop();
+	}
 }

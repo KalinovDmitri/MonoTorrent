@@ -34,28 +34,28 @@ using System.Text;
 
 namespace MonoTorrent.Client
 {
-    class PauseLimiter : IRateLimiter
-    {
-        TorrentManager manager;
+	class PauseLimiter : IRateLimiter
+	{
+		TorrentManager manager;
 
-        public bool Unlimited
-        {
-            get { return manager.State != MonoTorrent.Common.TorrentState.Paused; }
-        }
+		public bool Unlimited
+		{
+			get { return manager.State != MonoTorrent.Common.TorrentState.Paused; }
+		}
 
-        public PauseLimiter(TorrentManager manager)
-        {
-            this.manager = manager;
-        }
+		public PauseLimiter(TorrentManager manager)
+		{
+			this.manager = manager;
+		}
 
-        public bool TryProcess(int amount)
-        {
-            return Unlimited;
-        }
+		public bool TryProcess(int amount)
+		{
+			return Unlimited;
+		}
 
-        public void UpdateChunks (int maxRate, int actualRate)
-        {
-            // This is a simple on/off limiter
-        }
-    }
+		public void UpdateChunks(int maxRate, int actualRate)
+		{
+			// This is a simple on/off limiter
+		}
+	}
 }

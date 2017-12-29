@@ -37,199 +37,200 @@ using MonoTorrent.Client.Messages.Standard;
 
 namespace MonoTorrent.Client.Encryption
 {
-    internal static class EncryptorFactory
-    {
-        private class EncryptorAsyncResult : AsyncResult
-        {
-            public InfoHash[] SKeys;
-            public int Available;
-            public byte[] Buffer;
-            public byte[] InitialData;
-            public IEncryptor EncSocket;
-            public PeerId Id;
-            public IEncryption Decryptor;
-            public IEncryption Encryptor;
+	internal static class EncryptorFactory
+	{
+		private class EncryptorAsyncResult : AsyncResult
+		{
+			public InfoHash[] SKeys;
+			public int Available;
+			public byte[] Buffer;
+			public byte[] InitialData;
+			public IEncryptor EncSocket;
+			public PeerId Id;
+			public IEncryption Decryptor;
+			public IEncryption Encryptor;
 
 
-            public EncryptorAsyncResult(PeerId id, AsyncCallback callback, object state)
-                : base(callback, state)
-            {
-                Id = id;
-                Decryptor = new PlainTextEncryption();
-                Encryptor = new PlainTextEncryption();
-            }
-        }
+			public EncryptorAsyncResult(PeerId id, AsyncCallback callback, object state)
+				: base(callback, state)
+			{
+				Id = id;
+				Decryptor = new PlainTextEncryption();
+				Encryptor = new PlainTextEncryption();
+			}
+		}
 
-        private static readonly AsyncCallback CompletedEncryptedHandshakeCallback = CompletedEncryptedHandshake;
-        private static readonly AsyncIOCallback HandshakeReceivedCallback = HandshakeReceived;
+		private static readonly AsyncCallback CompletedEncryptedHandshakeCallback = CompletedEncryptedHandshake;
+		private static readonly AsyncIOCallback HandshakeReceivedCallback = HandshakeReceived;
 
-        private static EncryptionTypes CheckRC4(PeerId id)
-        {
-            // If the connection is *not* incoming, then it will be associated with an Engine
-            // so we can check what encryption levels the engine allows.
-            EncryptionTypes t;
-            if (id.Connection.IsIncoming)
-                t = EncryptionTypes.All;
-            else
-                t = id.TorrentManager.Engine.Settings.AllowedEncryption;
+		private static EncryptionTypes CheckRC4(PeerId id)
+		{
+			// If the connection is *not* incoming, then it will be associated with an Engine
+			// so we can check what encryption levels the engine allows.
+			EncryptionTypes t;
+			if (id.Connection.IsIncoming)
+				t = EncryptionTypes.All;
+			else
+				t = id.TorrentManager.Engine.Settings.AllowedEncryption;
 
-            // We're allowed use encryption if the engine settings allow it and the peer supports it
-            // Binary AND both the engine encryption and peer encryption and check what levels are supported
-            t &= id.Peer.Encryption;
-            return t;
-        }
+			// We're allowed use encryption if the engine settings allow it and the peer supports it
+			// Binary AND both the engine encryption and peer encryption and check what levels are supported
+			t &= id.Peer.Encryption;
+			return t;
+		}
 
-        internal static IAsyncResult BeginCheckEncryption(PeerId id, int bytesToReceive, AsyncCallback callback, object state)
-        {
-            return BeginCheckEncryption(id, bytesToReceive, callback, state, null);
-        }
+		internal static IAsyncResult BeginCheckEncryption(PeerId id, int bytesToReceive, AsyncCallback callback, object state)
+		{
+			return BeginCheckEncryption(id, bytesToReceive, callback, state, null);
+		}
 
-        internal static IAsyncResult BeginCheckEncryption(PeerId id, int bytesToReceive, AsyncCallback callback, object state, InfoHash[] sKeys)
-        {
-            EncryptorAsyncResult result = new EncryptorAsyncResult(id, callback, state);
-            result.SKeys = sKeys;
+		internal static IAsyncResult BeginCheckEncryption(PeerId id, int bytesToReceive, AsyncCallback callback, object state, InfoHash[] sKeys)
+		{
+			EncryptorAsyncResult result = new EncryptorAsyncResult(id, callback, state);
+			result.SKeys = sKeys;
 
-            IConnection c = id.Connection;
-            ClientEngine.MainLoop.QueueTimeout(TimeSpan.FromSeconds(10), delegate {
-                if (id.Encryptor == null || id.Decryptor == null)
-                    id.CloseConnection();
-                return false;
-            });
-            
-            try
-            {
-                // If the connection is incoming, receive the handshake before
-                // trying to decide what encryption to use
-                if (id.Connection.IsIncoming)
-                {
-                    result.Buffer = new byte[bytesToReceive];
-                    NetworkIO.EnqueueReceive(c, result.Buffer, 0, result.Buffer.Length, null, null, null, HandshakeReceivedCallback, result);
-                }
-                else
-                {
-                    EncryptionTypes usable = CheckRC4(id);
-                    bool hasPlainText = Toolbox.HasEncryption(usable, EncryptionTypes.PlainText);
-                    bool hasRC4 = Toolbox.HasEncryption(usable, EncryptionTypes.RC4Full) || Toolbox.HasEncryption(usable, EncryptionTypes.RC4Header);
-                    if (id.Engine.Settings.PreferEncryption)
-                    {
-                        if (hasRC4)
-                        {
-                            result.EncSocket = new PeerAEncryption(id.TorrentManager.InfoHash, usable);
-                            result.EncSocket.BeginHandshake(id.Connection, CompletedEncryptedHandshakeCallback, result);
-                        }
-                        else
-                        {
-                            result.Complete();
-                        }
-                    }
-                    else
-                    {
-                        if (hasPlainText)
-                        {
-                            result.Complete();
-                        }
-                        else
-                        {
-                            result.EncSocket = new PeerAEncryption(id.TorrentManager.InfoHash, usable);
-                            result.EncSocket.BeginHandshake(id.Connection, CompletedEncryptedHandshakeCallback, result);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                result.Complete(ex);
-            }
-            return result;
-        }
+			IConnection c = id.Connection;
+			ClientEngine.MainLoop.QueueTimeout(TimeSpan.FromSeconds(10), delegate
+			{
+				if (id.Encryptor == null || id.Decryptor == null)
+					id.CloseConnection();
+				return false;
+			});
 
-        internal static void EndCheckEncryption(IAsyncResult result, out byte[] initialData)
-        {
-            EncryptorAsyncResult r = (EncryptorAsyncResult)result;
+			try
+			{
+				// If the connection is incoming, receive the handshake before
+				// trying to decide what encryption to use
+				if (id.Connection.IsIncoming)
+				{
+					result.Buffer = new byte[bytesToReceive];
+					NetworkIO.EnqueueReceive(c, result.Buffer, 0, result.Buffer.Length, null, null, null, HandshakeReceivedCallback, result);
+				}
+				else
+				{
+					EncryptionTypes usable = CheckRC4(id);
+					bool hasPlainText = Toolbox.HasEncryption(usable, EncryptionTypes.PlainText);
+					bool hasRC4 = Toolbox.HasEncryption(usable, EncryptionTypes.RC4Full) || Toolbox.HasEncryption(usable, EncryptionTypes.RC4Header);
+					if (id.Engine.Settings.PreferEncryption)
+					{
+						if (hasRC4)
+						{
+							result.EncSocket = new PeerAEncryption(id.TorrentManager.InfoHash, usable);
+							result.EncSocket.BeginHandshake(id.Connection, CompletedEncryptedHandshakeCallback, result);
+						}
+						else
+						{
+							result.Complete();
+						}
+					}
+					else
+					{
+						if (hasPlainText)
+						{
+							result.Complete();
+						}
+						else
+						{
+							result.EncSocket = new PeerAEncryption(id.TorrentManager.InfoHash, usable);
+							result.EncSocket.BeginHandshake(id.Connection, CompletedEncryptedHandshakeCallback, result);
+						}
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				result.Complete(ex);
+			}
+			return result;
+		}
 
-            if (!r.IsCompleted)
-                r.AsyncWaitHandle.WaitOne();
+		internal static void EndCheckEncryption(IAsyncResult result, out byte[] initialData)
+		{
+			EncryptorAsyncResult r = (EncryptorAsyncResult)result;
 
-            if (r == null)
-                throw new ArgumentException("Invalid async result");
+			if (!r.IsCompleted)
+				r.AsyncWaitHandle.WaitOne();
 
-            if (r.SavedException != null)
-                throw r.SavedException;
+			if (r == null)
+				throw new ArgumentException("Invalid async result");
 
-            r.Id.Encryptor = r.Encryptor;
-            r.Id.Decryptor = r.Decryptor;
-            initialData = r.InitialData;
+			if (r.SavedException != null)
+				throw r.SavedException;
 
-            r.AsyncWaitHandle.Close();
-        }
+			r.Id.Encryptor = r.Encryptor;
+			r.Id.Decryptor = r.Decryptor;
+			initialData = r.InitialData;
 
-        private static void HandshakeReceived(bool succeeded, int count, object state)
-        {
-            EncryptorAsyncResult result = (EncryptorAsyncResult)state;
-            IConnection connection = result.Id.Connection;
+			r.AsyncWaitHandle.Close();
+		}
 
-            try
-            {
-                if (!succeeded)
-                    throw new EncryptionException("Couldn't receive the handshake");
-                
-                result.Available += count;
-                HandshakeMessage message = new HandshakeMessage();
-                message.Decode(result.Buffer, 0, result.Buffer.Length);
-                bool valid = message.ProtocolString == VersionInfo.ProtocolStringV100;
-                EncryptionTypes usable = CheckRC4(result.Id);
+		private static void HandshakeReceived(bool succeeded, int count, object state)
+		{
+			EncryptorAsyncResult result = (EncryptorAsyncResult)state;
+			IConnection connection = result.Id.Connection;
 
-                bool canUseRC4 = Toolbox.HasEncryption(usable, EncryptionTypes.RC4Header) || Toolbox.HasEncryption(usable, EncryptionTypes.RC4Full);
-                // If encryption is disabled and we received an invalid handshake - abort!
-                if (valid)
-                {
-                    result.InitialData = result.Buffer;
-                    result.Complete();
-                    return;
-                }
-                if (!canUseRC4 && !valid)
-                {
-                    result.Complete(new EncryptionException("Invalid handshake received and no decryption works"));
-                    return;
-                }
-                if (canUseRC4)
-                {
-                    // The data we just received was part of an encrypted handshake and was *not* the BitTorrent handshake
-                    result.EncSocket = new PeerBEncryption(result.SKeys, EncryptionTypes.All);
-                    result.EncSocket.BeginHandshake(connection, result.Buffer, 0, result.Buffer.Length, CompletedEncryptedHandshakeCallback, result);
-                }
-                else
-                {
-                    result.Complete();
-                }
-            }
-            catch (Exception ex)
-            {
-                result.Complete(ex);
-                return;
-            }
-        }
+			try
+			{
+				if (!succeeded)
+					throw new EncryptionException("Couldn't receive the handshake");
 
-        private static void CompletedEncryptedHandshake(IAsyncResult result)
-        {
-            EncryptorAsyncResult r = (EncryptorAsyncResult)result.AsyncState;
-            try
-            {
-                r.EncSocket.EndHandshake(result);
+				result.Available += count;
+				HandshakeMessage message = new HandshakeMessage();
+				message.Decode(result.Buffer, 0, result.Buffer.Length);
+				bool valid = message.ProtocolString == VersionInfo.ProtocolStringV100;
+				EncryptionTypes usable = CheckRC4(result.Id);
 
-                r.Decryptor = r.EncSocket.Decryptor;
-                r.Encryptor = r.EncSocket.Encryptor;
-                r.InitialData = r.EncSocket.InitialData;
-            }
-            catch (Exception ex)
-            {
-                r.SavedException = ex;
-            }
+				bool canUseRC4 = Toolbox.HasEncryption(usable, EncryptionTypes.RC4Header) || Toolbox.HasEncryption(usable, EncryptionTypes.RC4Full);
+				// If encryption is disabled and we received an invalid handshake - abort!
+				if (valid)
+				{
+					result.InitialData = result.Buffer;
+					result.Complete();
+					return;
+				}
+				if (!canUseRC4 && !valid)
+				{
+					result.Complete(new EncryptionException("Invalid handshake received and no decryption works"));
+					return;
+				}
+				if (canUseRC4)
+				{
+					// The data we just received was part of an encrypted handshake and was *not* the BitTorrent handshake
+					result.EncSocket = new PeerBEncryption(result.SKeys, EncryptionTypes.All);
+					result.EncSocket.BeginHandshake(connection, result.Buffer, 0, result.Buffer.Length, CompletedEncryptedHandshakeCallback, result);
+				}
+				else
+				{
+					result.Complete();
+				}
+			}
+			catch (Exception ex)
+			{
+				result.Complete(ex);
+				return;
+			}
+		}
 
-            r.Complete();
+		private static void CompletedEncryptedHandshake(IAsyncResult result)
+		{
+			EncryptorAsyncResult r = (EncryptorAsyncResult)result.AsyncState;
+			try
+			{
+				r.EncSocket.EndHandshake(result);
 
-            result.AsyncWaitHandle.Close();
-            //r.AsyncWaitHandle.Close();
-        }
-    }
+				r.Decryptor = r.EncSocket.Decryptor;
+				r.Encryptor = r.EncSocket.Encryptor;
+				r.InitialData = r.EncSocket.InitialData;
+			}
+			catch (Exception ex)
+			{
+				r.SavedException = ex;
+			}
+
+			r.Complete();
+
+			result.AsyncWaitHandle.Close();
+			//r.AsyncWaitHandle.Close();
+		}
+	}
 }

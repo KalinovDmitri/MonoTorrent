@@ -36,17 +36,17 @@ using System.Net;
 
 namespace MonoTorrent.Dht.Messages
 {
-    class PingResponse : ResponseMessage
-    {
-        public PingResponse(NodeId id, BEncodedValue transactionId)
-            : base(id, transactionId)
-        {
-        }
+	class PingResponse : ResponseMessage
+	{
+		public PingResponse(NodeId id, BEncodedValue transactionId)
+			: base(id, transactionId)
+		{
+		}
 
-        public PingResponse(BEncodedDictionary d, QueryMessage m)
-            :base(d, m)
-        {
-        }
-    }
+		public PingResponse(BEncodedDictionary d, QueryMessage m)
+			: base(d, m)
+		{
+		}
+	}
 }
 #endif

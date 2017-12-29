@@ -36,50 +36,50 @@ using System.Net;
 
 namespace MonoTorrent.Dht.Messages
 {
-    internal abstract class QueryMessage : Message
-    {
-        private static readonly BEncodedString QueryArgumentsKey = "a";
-        private static readonly BEncodedString QueryNameKey = "q";
-        internal static readonly BEncodedString QueryType = "q";
-        private ResponseCreator responseCreator;
+	internal abstract class QueryMessage : Message
+	{
+		private static readonly BEncodedString QueryArgumentsKey = "a";
+		private static readonly BEncodedString QueryNameKey = "q";
+		internal static readonly BEncodedString QueryType = "q";
+		private ResponseCreator responseCreator;
 
-        internal override NodeId Id
-        {
-            get { return new NodeId((BEncodedString)Parameters[IdKey]); }
-        }
+		internal override NodeId Id
+		{
+			get { return new NodeId((BEncodedString)Parameters[IdKey]); }
+		}
 
-        internal ResponseCreator ResponseCreator
-        {
-            get { return responseCreator; }
-            private set { responseCreator = value; }
-        }
+		internal ResponseCreator ResponseCreator
+		{
+			get { return responseCreator; }
+			private set { responseCreator = value; }
+		}
 
-        protected BEncodedDictionary Parameters
-        {
-            get { return (BEncodedDictionary)properties[QueryArgumentsKey]; }
-        }
+		protected BEncodedDictionary Parameters
+		{
+			get { return (BEncodedDictionary)properties[QueryArgumentsKey]; }
+		}
 
-        protected QueryMessage(NodeId id, BEncodedString queryName, ResponseCreator responseCreator)
-            : this(id, queryName, new BEncodedDictionary(), responseCreator)
-        {
+		protected QueryMessage(NodeId id, BEncodedString queryName, ResponseCreator responseCreator)
+			: this(id, queryName, new BEncodedDictionary(), responseCreator)
+		{
 
-        }
+		}
 
-        protected QueryMessage(NodeId id, BEncodedString queryName, BEncodedDictionary queryArguments, ResponseCreator responseCreator)
-            : base(QueryType)
-        {
-            properties.Add(QueryNameKey, queryName);
-            properties.Add(QueryArgumentsKey, queryArguments);
+		protected QueryMessage(NodeId id, BEncodedString queryName, BEncodedDictionary queryArguments, ResponseCreator responseCreator)
+			: base(QueryType)
+		{
+			properties.Add(QueryNameKey, queryName);
+			properties.Add(QueryArgumentsKey, queryArguments);
 
-            Parameters.Add(IdKey, id.BencodedString());
-            ResponseCreator = responseCreator;
-        }
+			Parameters.Add(IdKey, id.BencodedString());
+			ResponseCreator = responseCreator;
+		}
 
-        protected QueryMessage(BEncodedDictionary d, ResponseCreator responseCreator)
-            : base(d)
-        {
-            ResponseCreator = responseCreator;
-        }
-    }
+		protected QueryMessage(BEncodedDictionary d, ResponseCreator responseCreator)
+			: base(d)
+		{
+			ResponseCreator = responseCreator;
+		}
+	}
 }
 #endif

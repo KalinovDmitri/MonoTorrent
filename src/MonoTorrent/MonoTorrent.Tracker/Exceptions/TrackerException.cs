@@ -4,16 +4,16 @@ using System.Text;
 
 namespace MonoTorrent.Tracker
 {
-    public class TrackerException : Exception
-    {
-        public TrackerException()
-            : base()
-        {
-        }
+	public class TrackerException : Exception
+	{
+		public TrackerException()
+			: base()
+		{
+		}
 
-        public TrackerException(string message)
-            : base(message)
-        {
-        }
-    }
+		public TrackerException(string message)
+			: base(message)
+		{
+		}
+	}
 }

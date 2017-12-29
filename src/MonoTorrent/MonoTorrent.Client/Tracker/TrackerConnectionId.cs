@@ -35,40 +35,40 @@ using System.Threading;
 
 namespace MonoTorrent.Client.Tracker
 {
-    internal class TrackerConnectionID
-    {
-        TorrentEvent torrentEvent;
-        Tracker tracker;
-        bool trySubsequent;
-        ManualResetEvent waitHandle;
+	internal class TrackerConnectionID
+	{
+		TorrentEvent torrentEvent;
+		Tracker tracker;
+		bool trySubsequent;
+		ManualResetEvent waitHandle;
 
-        public TorrentEvent TorrentEvent
-        {
-            get { return torrentEvent; }
-        }
+		public TorrentEvent TorrentEvent
+		{
+			get { return torrentEvent; }
+		}
 
-        public Tracker Tracker
-        {
-            get { return tracker; }
-        }
+		public Tracker Tracker
+		{
+			get { return tracker; }
+		}
 
-        internal bool TrySubsequent
-        {
-            get { return trySubsequent; }
-        }
+		internal bool TrySubsequent
+		{
+			get { return trySubsequent; }
+		}
 
-        public ManualResetEvent WaitHandle
-        {
-            get { return waitHandle; }
-        }
+		public ManualResetEvent WaitHandle
+		{
+			get { return waitHandle; }
+		}
 
 
-        public TrackerConnectionID(Tracker tracker, bool trySubsequent, TorrentEvent torrentEvent, ManualResetEvent waitHandle)
-        {
-            this.tracker = tracker;
-            this.trySubsequent = trySubsequent;
-            this.torrentEvent = torrentEvent;
-            this.waitHandle = waitHandle;
-        }
-    }
+		public TrackerConnectionID(Tracker tracker, bool trySubsequent, TorrentEvent torrentEvent, ManualResetEvent waitHandle)
+		{
+			this.tracker = tracker;
+			this.trySubsequent = trySubsequent;
+			this.torrentEvent = torrentEvent;
+			this.waitHandle = waitHandle;
+		}
+	}
 }

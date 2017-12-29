@@ -5,12 +5,12 @@ using System.Text;
 
 namespace MonoTorrent.Dht
 {
-    interface ITask
-    {
-        event EventHandler<TaskCompleteEventArgs> Completed;
+	interface ITask
+	{
+		event EventHandler<TaskCompleteEventArgs> Completed;
 
-        bool Active { get; }
-        void Execute();
-    }
+		bool Active { get; }
+		void Execute();
+	}
 }
 #endif

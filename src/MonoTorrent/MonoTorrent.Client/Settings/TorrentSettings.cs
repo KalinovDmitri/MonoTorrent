@@ -32,57 +32,57 @@ using System;
 
 namespace MonoTorrent.Client
 {
-    [Serializable]
-    public class TorrentSettings : ICloneable
-    {
-        #region Member Variables
+	[Serializable]
+	public class TorrentSettings : ICloneable
+	{
+		#region Member Variables
 
-        public bool EnablePeerExchange
-        {
-            get { return enablePeerExchange; }
-            set { enablePeerExchange = value; }
-        }
-        private bool enablePeerExchange = true;
+		public bool EnablePeerExchange
+		{
+			get { return enablePeerExchange; }
+			set { enablePeerExchange = value; }
+		}
+		private bool enablePeerExchange = true;
 
-        public bool InitialSeedingEnabled
-        {
-            get { return this.initialSeedingEnabled; }
-            set { this.initialSeedingEnabled = value; }
-        }
-        private bool initialSeedingEnabled;
+		public bool InitialSeedingEnabled
+		{
+			get { return this.initialSeedingEnabled; }
+			set { this.initialSeedingEnabled = value; }
+		}
+		private bool initialSeedingEnabled;
 
-        public int MaxDownloadSpeed
-        {
-            get { return this.maxDownloadSpeed; }
-            set { this.maxDownloadSpeed = value; }
-        }
-        private int maxDownloadSpeed;
+		public int MaxDownloadSpeed
+		{
+			get { return this.maxDownloadSpeed; }
+			set { this.maxDownloadSpeed = value; }
+		}
+		private int maxDownloadSpeed;
 
-        public int MaxUploadSpeed
-        {
-            get { return this.maxUploadSpeed; }
-            set { this.maxUploadSpeed = value; }
-        }
-        private int maxUploadSpeed;
+		public int MaxUploadSpeed
+		{
+			get { return this.maxUploadSpeed; }
+			set { this.maxUploadSpeed = value; }
+		}
+		private int maxUploadSpeed;
 
-        public int MaxConnections
-        {
-            get { return this.maxConnections; }
-            set { this.maxConnections = value; }
-        }
-        private int maxConnections;
+		public int MaxConnections
+		{
+			get { return this.maxConnections; }
+			set { this.maxConnections = value; }
+		}
+		private int maxConnections;
 
-        public int UploadSlots
-        {
-            get { return this.uploadSlots; }
-            set
-            {
-                if (value < 1)
-                    throw new ArgumentOutOfRangeException("You must use at least 1 upload slot");
-                this.uploadSlots = value;
-            }
-        }
-        private int uploadSlots;
+		public int UploadSlots
+		{
+			get { return this.uploadSlots; }
+			set
+			{
+				if (value < 1)
+					throw new ArgumentOutOfRangeException("You must use at least 1 upload slot");
+				this.uploadSlots = value;
+			}
+		}
+		private int uploadSlots;
 
 		/// <summary>
 		/// The choke/unchoke manager reviews how each torrent is making use of its upload slots.  If appropriate, it releases one of the available slots and uses it to try a different peer
@@ -90,7 +90,7 @@ namespace MonoTorrent.Client
 		/// downloading data and the choke/unchoke manager will choke them too early.  If set too long, we will spend more time than is necessary waiting for a peer to give us data.
 		/// The default is 30 seconds.  A value of 0 disables the choke/unchoke manager altogether.
 		/// </summary>
-        public int MinimumTimeBetweenReviews
+		public int MinimumTimeBetweenReviews
 		{
 			get { return this.minimumTimeBetweenReviews; }
 			set
@@ -111,8 +111,8 @@ namespace MonoTorrent.Client
 			get { return this.percentOfMaxRateToSkipReview; }
 			set
 			{
-                if(value < 0 || value > 100)
-                    throw new ArgumentOutOfRangeException();
+				if (value < 0 || value > 100)
+					throw new ArgumentOutOfRangeException();
 				this.percentOfMaxRateToSkipReview = value;
 			}
 		}
@@ -150,92 +150,92 @@ namespace MonoTorrent.Client
 		}
 		private long connectionRetentionFactor = 1024;
 
-        // FIXME: This value needs to be obeyed if it's changed
-        // while the torrent is running
-        public bool UseDht
-        {
-            get { return useDht; }
+		// FIXME: This value needs to be obeyed if it's changed
+		// while the torrent is running
+		public bool UseDht
+		{
+			get { return useDht; }
 			set { useDht = value; }
-        }
-        private bool useDht = true;
+		}
+		private bool useDht = true;
 
-        #endregion
-
-
-        #region Defaults
-
-        private const int DefaultDownloadSpeed = 0;
-        private const int DefaultMaxConnections = 60;
-        private const int DefaultUploadSlots = 4;
-        private const int DefaultUploadSpeed = 0;
-        private const bool DefaultInitialSeedingEnabled = false;
-
-        #endregion
+		#endregion
 
 
-        #region Constructors
-        public TorrentSettings()
-            : this(DefaultUploadSlots, DefaultMaxConnections, DefaultDownloadSpeed, DefaultUploadSpeed, DefaultInitialSeedingEnabled)
-        {
-        }
+		#region Defaults
 
-        public TorrentSettings(int uploadSlots)
-            : this(uploadSlots, DefaultMaxConnections, DefaultDownloadSpeed, DefaultUploadSpeed, DefaultInitialSeedingEnabled)
-        {
-        }
+		private const int DefaultDownloadSpeed = 0;
+		private const int DefaultMaxConnections = 60;
+		private const int DefaultUploadSlots = 4;
+		private const int DefaultUploadSpeed = 0;
+		private const bool DefaultInitialSeedingEnabled = false;
 
-        public TorrentSettings(int uploadSlots, int maxConnections)
-            : this(uploadSlots, maxConnections, DefaultDownloadSpeed, DefaultUploadSpeed, DefaultInitialSeedingEnabled)
-        {
-        }
+		#endregion
 
-        public TorrentSettings(int uploadSlots, int maxConnections, int maxDownloadSpeed, int maxUploadSpeed)
-            : this(uploadSlots, maxConnections, maxDownloadSpeed, maxUploadSpeed, DefaultInitialSeedingEnabled)
-        {
 
-        }
+		#region Constructors
+		public TorrentSettings()
+			: this(DefaultUploadSlots, DefaultMaxConnections, DefaultDownloadSpeed, DefaultUploadSpeed, DefaultInitialSeedingEnabled)
+		{
+		}
 
-        public TorrentSettings(int uploadSlots, int maxConnections, int maxDownloadSpeed, int maxUploadSpeed, bool initialSeedingEnabled)
-        {
-            this.maxConnections = maxConnections;
-            this.maxDownloadSpeed = maxDownloadSpeed;
-            this.maxUploadSpeed = maxUploadSpeed;
-            this.uploadSlots = uploadSlots;
-            this.initialSeedingEnabled = initialSeedingEnabled;
-        }
-        #endregion
+		public TorrentSettings(int uploadSlots)
+			: this(uploadSlots, DefaultMaxConnections, DefaultDownloadSpeed, DefaultUploadSpeed, DefaultInitialSeedingEnabled)
+		{
+		}
 
-        #region Methods
+		public TorrentSettings(int uploadSlots, int maxConnections)
+			: this(uploadSlots, maxConnections, DefaultDownloadSpeed, DefaultUploadSpeed, DefaultInitialSeedingEnabled)
+		{
+		}
 
-        object ICloneable.Clone()
-        {
-            return Clone();
-        }
+		public TorrentSettings(int uploadSlots, int maxConnections, int maxDownloadSpeed, int maxUploadSpeed)
+			: this(uploadSlots, maxConnections, maxDownloadSpeed, maxUploadSpeed, DefaultInitialSeedingEnabled)
+		{
 
-        public TorrentSettings Clone()
-        {
-            return (TorrentSettings)this.MemberwiseClone();
-        }
+		}
 
-        public override bool Equals(object obj)
-        {
-            TorrentSettings settings = obj as TorrentSettings;
-            return (settings == null) ? false : this.initialSeedingEnabled == settings.initialSeedingEnabled && 
-                                                this.maxConnections == settings.maxConnections &&
-                                                this.maxDownloadSpeed == settings.maxDownloadSpeed &&
-                                                this.maxUploadSpeed == settings.maxUploadSpeed &&
-                                                this.uploadSlots == settings.uploadSlots;
-        }
+		public TorrentSettings(int uploadSlots, int maxConnections, int maxDownloadSpeed, int maxUploadSpeed, bool initialSeedingEnabled)
+		{
+			this.maxConnections = maxConnections;
+			this.maxDownloadSpeed = maxDownloadSpeed;
+			this.maxUploadSpeed = maxUploadSpeed;
+			this.uploadSlots = uploadSlots;
+			this.initialSeedingEnabled = initialSeedingEnabled;
+		}
+		#endregion
 
-        public override int GetHashCode()
-        {
-            return this.initialSeedingEnabled.GetHashCode() ^
-                   this.maxConnections ^ 
-                   this.maxDownloadSpeed ^ 
-                   this.maxUploadSpeed ^ 
-                   this.uploadSlots;
-        }
+		#region Methods
 
-        #endregion Methods
-    }
+		object ICloneable.Clone()
+		{
+			return Clone();
+		}
+
+		public TorrentSettings Clone()
+		{
+			return (TorrentSettings)this.MemberwiseClone();
+		}
+
+		public override bool Equals(object obj)
+		{
+			TorrentSettings settings = obj as TorrentSettings;
+			return (settings == null) ? false : this.initialSeedingEnabled == settings.initialSeedingEnabled &&
+												this.maxConnections == settings.maxConnections &&
+												this.maxDownloadSpeed == settings.maxDownloadSpeed &&
+												this.maxUploadSpeed == settings.maxUploadSpeed &&
+												this.uploadSlots == settings.uploadSlots;
+		}
+
+		public override int GetHashCode()
+		{
+			return this.initialSeedingEnabled.GetHashCode() ^
+				   this.maxConnections ^
+				   this.maxDownloadSpeed ^
+				   this.maxUploadSpeed ^
+				   this.uploadSlots;
+		}
+
+		#endregion Methods
+	}
 }

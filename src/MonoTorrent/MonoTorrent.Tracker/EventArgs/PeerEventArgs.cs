@@ -5,25 +5,25 @@ using MonoTorrent.Tracker;
 
 namespace MonoTorrent.Tracker
 {
-    public abstract class PeerEventArgs : EventArgs
-    {
-        private Peer peer;
-        private SimpleTorrentManager torrent;
+	public abstract class PeerEventArgs : EventArgs
+	{
+		private Peer peer;
+		private SimpleTorrentManager torrent;
 
-        public Peer Peer
-        {
-            get { return peer; }
-        }
+		public Peer Peer
+		{
+			get { return peer; }
+		}
 
-        public SimpleTorrentManager Torrent
-        {
-            get { return torrent; }
-        }
+		public SimpleTorrentManager Torrent
+		{
+			get { return torrent; }
+		}
 
-        protected PeerEventArgs(Peer peer, SimpleTorrentManager torrent)
-        {
-            this.peer = peer;
-            this.torrent = torrent;
-        }
-    }
+		protected PeerEventArgs(Peer peer, SimpleTorrentManager torrent)
+		{
+			this.peer = peer;
+			this.torrent = torrent;
+		}
+	}
 }

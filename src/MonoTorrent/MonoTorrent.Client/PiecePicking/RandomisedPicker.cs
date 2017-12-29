@@ -35,27 +35,27 @@ using MonoTorrent.Common;
 
 namespace MonoTorrent.Client
 {
-    public class RandomisedPicker : PiecePicker
-    {
-        Random random = new Random();
+	public class RandomisedPicker : PiecePicker
+	{
+		Random random = new Random();
 
-        public RandomisedPicker(PiecePicker picker)
-            :base(picker)
-        {
+		public RandomisedPicker(PiecePicker picker)
+			: base(picker)
+		{
 
-        }
+		}
 
-        public override MessageBundle PickPiece(PeerId id, BitField peerBitfield, List<PeerId> otherPeers, int count, int startIndex, int endIndex)
-        {
-            if (peerBitfield.AllFalse)
-                return null;
+		public override MessageBundle PickPiece(PeerId id, BitField peerBitfield, List<PeerId> otherPeers, int count, int startIndex, int endIndex)
+		{
+			if (peerBitfield.AllFalse)
+				return null;
 
-            if (count > 1)
-                return base.PickPiece(id, peerBitfield, otherPeers, count, startIndex, endIndex);
+			if (count > 1)
+				return base.PickPiece(id, peerBitfield, otherPeers, count, startIndex, endIndex);
 
-            int midpoint = random.Next(startIndex, endIndex);
-            return base.PickPiece(id, peerBitfield, otherPeers, count, midpoint, endIndex) ??
-                   base.PickPiece(id, peerBitfield, otherPeers, count, startIndex, midpoint);
-        }
-    }
+			int midpoint = random.Next(startIndex, endIndex);
+			return base.PickPiece(id, peerBitfield, otherPeers, count, midpoint, endIndex) ??
+				   base.PickPiece(id, peerBitfield, otherPeers, count, startIndex, midpoint);
+		}
+	}
 }

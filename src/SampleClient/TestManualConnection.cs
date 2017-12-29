@@ -14,325 +14,325 @@ using System.Threading;
 
 namespace SampleClient
 {
-    public class CustomTracker : Tracker
-    {
-        public CustomTracker(Uri uri)
-            :base(uri)
-        {
-            this.CanScrape = false;
-        }
+	public class CustomTracker : Tracker
+	{
+		public CustomTracker(Uri uri)
+			: base(uri)
+		{
+			this.CanScrape = false;
+		}
 
-        public override void Announce(AnnounceParameters parameters, object state)
-        {
-            RaiseAnnounceComplete(new AnnounceResponseEventArgs(this, state, true));
-        }
+		public override void Announce(AnnounceParameters parameters, object state)
+		{
+			RaiseAnnounceComplete(new AnnounceResponseEventArgs(this, state, true));
+		}
 
-        public override void Scrape(ScrapeParameters parameters, object state)
-        {
-            RaiseScrapeComplete(new ScrapeResponseEventArgs(this, state, true));
-        }
+		public override void Scrape(ScrapeParameters parameters, object state)
+		{
+			RaiseScrapeComplete(new ScrapeResponseEventArgs(this, state, true));
+		}
 
-        public void AddPeer(Peer p)
-        {
-            TrackerConnectionID id = new TrackerConnectionID(this, false, TorrentEvent.None, null);
-            AnnounceResponseEventArgs e = new AnnounceResponseEventArgs(this, null, true);
-            e.Peers.Add(p);
-            e.Successful = true;
-            RaiseAnnounceComplete(e);
-        }
+		public void AddPeer(Peer p)
+		{
+			TrackerConnectionID id = new TrackerConnectionID(this, false, TorrentEvent.None, null);
+			AnnounceResponseEventArgs e = new AnnounceResponseEventArgs(this, null, true);
+			e.Peers.Add(p);
+			e.Successful = true;
+			RaiseAnnounceComplete(e);
+		}
 
-        public void AddFailedPeer(Peer p)
-        {
-            TrackerConnectionID id = new TrackerConnectionID(this, true, TorrentEvent.None, null);
-            AnnounceResponseEventArgs e = new AnnounceResponseEventArgs(this, null, true);
-            e.Peers.Add(p);
-            e.Successful = false;
-            RaiseAnnounceComplete(e);
-        }
-    }
+		public void AddFailedPeer(Peer p)
+		{
+			TrackerConnectionID id = new TrackerConnectionID(this, true, TorrentEvent.None, null);
+			AnnounceResponseEventArgs e = new AnnounceResponseEventArgs(this, null, true);
+			e.Peers.Add(p);
+			e.Successful = false;
+			RaiseAnnounceComplete(e);
+		}
+	}
 
-    public class NullWriter : PieceWriter
-    {
-        public override int Read(TorrentFile file, long offset, byte[] buffer, int bufferOffset, int count)
-        {
-            return count;
-        }
-        public override void Write(TorrentFile file, long offset, byte[] buffer, int bufferOffset, int count)
-        {
-        }
+	public class NullWriter : PieceWriter
+	{
+		public override int Read(TorrentFile file, long offset, byte[] buffer, int bufferOffset, int count)
+		{
+			return count;
+		}
+		public override void Write(TorrentFile file, long offset, byte[] buffer, int bufferOffset, int count)
+		{
+		}
 
-        public override void Close(TorrentFile file)
-        {
+		public override void Close(TorrentFile file)
+		{
 
-        }
+		}
 
-        public override void Flush (TorrentFile file)
-        {
-        }
+		public override void Flush(TorrentFile file)
+		{
+		}
 
-        public override bool Exists(TorrentFile file)
-        {
-            return false;
-        }
+		public override bool Exists(TorrentFile file)
+		{
+			return false;
+		}
 
-        public override void Move(string oldPath, string newPath, bool ignoreExisting)
-        {
-            
-        }
-    }
+		public override void Move(string oldPath, string newPath, bool ignoreExisting)
+		{
 
-    public class CustomConnection : IConnection
-    {
-        private string name;
-        private Socket s;
-        private bool incoming;
-        public CustomConnection(Socket s, bool incoming, string name)
-        {
-            this.name = name;
-            this.s = s;
-            this.incoming = incoming;
-        }
-        public override string ToString()
-        {
-            return name;
-        }
-        public byte[] AddressBytes
-        {
-            get { return ((IPEndPoint)s.RemoteEndPoint).Address.GetAddressBytes(); }
-        }
+		}
+	}
 
-        public bool Connected
-        {
-            get { return s.Connected; }
-        }
+	public class CustomConnection : IConnection
+	{
+		private string name;
+		private Socket s;
+		private bool incoming;
+		public CustomConnection(Socket s, bool incoming, string name)
+		{
+			this.name = name;
+			this.s = s;
+			this.incoming = incoming;
+		}
+		public override string ToString()
+		{
+			return name;
+		}
+		public byte[] AddressBytes
+		{
+			get { return ((IPEndPoint)s.RemoteEndPoint).Address.GetAddressBytes(); }
+		}
 
-        public bool CanReconnect
-        {
-            get { return false; }
-        }
+		public bool Connected
+		{
+			get { return s.Connected; }
+		}
 
-        public bool IsIncoming
-        {
-            get { return incoming; }
-        }
+		public bool CanReconnect
+		{
+			get { return false; }
+		}
 
-        public EndPoint EndPoint
-        {
-            get { return s.RemoteEndPoint; }
-        }
+		public bool IsIncoming
+		{
+			get { return incoming; }
+		}
 
-        public IAsyncResult BeginConnect(AsyncCallback callback, object state)
-        {
-            throw new InvalidOperationException();
-        }
+		public EndPoint EndPoint
+		{
+			get { return s.RemoteEndPoint; }
+		}
 
-        public void EndConnect(IAsyncResult result)
-        {
-            throw new InvalidOperationException();
-        }
+		public IAsyncResult BeginConnect(AsyncCallback callback, object state)
+		{
+			throw new InvalidOperationException();
+		}
 
-        public IAsyncResult BeginReceive(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
-        {
-            return s.BeginReceive(buffer, offset, count, SocketFlags.None, callback, state);
-        }
+		public void EndConnect(IAsyncResult result)
+		{
+			throw new InvalidOperationException();
+		}
 
-        public int EndReceive(IAsyncResult result)
-        {
-            Console.WriteLine("{0} - {1}", name, "received");
-            return s.EndReceive(result);
-        }
+		public IAsyncResult BeginReceive(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+		{
+			return s.BeginReceive(buffer, offset, count, SocketFlags.None, callback, state);
+		}
 
-        public IAsyncResult BeginSend(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
-        {
-            return s.BeginSend(buffer, offset, count, SocketFlags.None, callback, state);
-        }
+		public int EndReceive(IAsyncResult result)
+		{
+			Console.WriteLine("{0} - {1}", name, "received");
+			return s.EndReceive(result);
+		}
 
-        public int EndSend(IAsyncResult result)
-        {
-            Console.WriteLine("{0} - {1}", name, "sent");
-            return s.EndSend(result);
-        }
+		public IAsyncResult BeginSend(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+		{
+			return s.BeginSend(buffer, offset, count, SocketFlags.None, callback, state);
+		}
 
-        public void Dispose()
-        {
-            s.Close();
-        }
+		public int EndSend(IAsyncResult result)
+		{
+			Console.WriteLine("{0} - {1}", name, "sent");
+			return s.EndSend(result);
+		}
 
-        public Uri Uri
-        {
-            get { return null; }
-        }
-    }
+		public void Dispose()
+		{
+			s.Close();
+		}
 
-    public class CustomListener : PeerListener
-    {
-        public override void Start()
-        {
+		public Uri Uri
+		{
+			get { return null; }
+		}
+	}
 
-        }
+	public class CustomListener : PeerListener
+	{
+		public override void Start()
+		{
 
-        public override void Stop()
-        {
+		}
 
-        }
+		public override void Stop()
+		{
 
-        public CustomListener()
-            :base(new IPEndPoint(IPAddress.Any, 0))
-        {
-        }
+		}
 
-        public void Add(TorrentManager manager, IConnection connection)
-        {
-            MonoTorrent.Client.Peer p = new MonoTorrent.Client.Peer("", new Uri("tcp://12.123.123.1:2342"), EncryptionTypes.All);
-            base.RaiseConnectionReceived(p, connection, manager);
-        }
-    }
-    public class ConnectionPair : IDisposable
-    {
-        TcpListener socketListener;
-        public IConnection Incoming;
-        public IConnection Outgoing;
+		public CustomListener()
+			: base(new IPEndPoint(IPAddress.Any, 0))
+		{
+		}
 
-        public ConnectionPair(int port)
-        {
-            socketListener = new TcpListener(port);
-            socketListener.Start();
+		public void Add(TorrentManager manager, IConnection connection)
+		{
+			MonoTorrent.Client.Peer p = new MonoTorrent.Client.Peer("", new Uri("tcp://12.123.123.1:2342"), EncryptionTypes.All);
+			base.RaiseConnectionReceived(p, connection, manager);
+		}
+	}
+	public class ConnectionPair : IDisposable
+	{
+		TcpListener socketListener;
+		public IConnection Incoming;
+		public IConnection Outgoing;
 
-            Socket s1a = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            s1a.Connect(IPAddress.Loopback, port);
-            Socket s1b = socketListener.AcceptSocket();
+		public ConnectionPair(int port)
+		{
+			socketListener = new TcpListener(port);
+			socketListener.Start();
 
-            Incoming = new CustomConnection(s1a, true, "1A");
-            Outgoing = new CustomConnection(s1b, false, "1B");
-        }
+			Socket s1a = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			s1a.Connect(IPAddress.Loopback, port);
+			Socket s1b = socketListener.AcceptSocket();
 
-        public void Dispose()
-        {
-            Incoming.Dispose();
-            Outgoing.Dispose();
-            socketListener.Stop();
-        }
-    }
-    public class EngineTestRig
-    {
-        private BEncodedDictionary torrentDict;
-        private ClientEngine engine;
-        private CustomListener listener;
-        private TorrentManager manager;
-        private Torrent torrent;
+			Incoming = new CustomConnection(s1a, true, "1A");
+			Outgoing = new CustomConnection(s1b, false, "1B");
+		}
 
-        public ClientEngine Engine
-        {
-            get { return engine; }
-        }
+		public void Dispose()
+		{
+			Incoming.Dispose();
+			Outgoing.Dispose();
+			socketListener.Stop();
+		}
+	}
+	public class EngineTestRig
+	{
+		private BEncodedDictionary torrentDict;
+		private ClientEngine engine;
+		private CustomListener listener;
+		private TorrentManager manager;
+		private Torrent torrent;
 
-        public CustomListener Listener
-        {
-            get { return listener; }
-        }
+		public ClientEngine Engine
+		{
+			get { return engine; }
+		}
 
-        public TorrentManager Manager
-        {
-            get { return manager; }
-        }
+		public CustomListener Listener
+		{
+			get { return listener; }
+		}
 
-        public Torrent Torrent
-        {
-            get { return torrent; }
-        }
+		public TorrentManager Manager
+		{
+			get { return manager; }
+		}
 
-        public BEncodedDictionary TorrentDict
-        {
-            get { return torrentDict; }
-        }
+		public Torrent Torrent
+		{
+			get { return torrent; }
+		}
 
-        public CustomTracker Tracker
-        {
-            get { return (CustomTracker)this.manager.TrackerManager.CurrentTracker; }
-        }
+		public BEncodedDictionary TorrentDict
+		{
+			get { return torrentDict; }
+		}
+
+		public CustomTracker Tracker
+		{
+			get { return (CustomTracker)this.manager.TrackerManager.CurrentTracker; }
+		}
 
 
-        static EngineTestRig()
-        {
-            TrackerFactory.Register("custom", typeof(CustomTracker));
-        }
+		static EngineTestRig()
+		{
+			TrackerFactory.Register("custom", typeof(CustomTracker));
+		}
 
-        public EngineTestRig(string savePath)
-            : this(savePath, 256 * 1024, null)
-        {
+		public EngineTestRig(string savePath)
+			: this(savePath, 256 * 1024, null)
+		{
 
-        }
+		}
 
-        public EngineTestRig(string savePath, PieceWriter writer)
-            : this(savePath, 256 * 1024, writer)
-        {
+		public EngineTestRig(string savePath, PieceWriter writer)
+			: this(savePath, 256 * 1024, writer)
+		{
 
-        }
+		}
 
-        public EngineTestRig(string savePath, int piecelength, PieceWriter writer)
-        {
-            if(writer == null)
-                writer = new MemoryWriter(new NullWriter());
-            listener = new CustomListener();
-            engine = new ClientEngine(new EngineSettings(), listener, writer);
-            torrentDict = CreateTorrent(piecelength);
-            torrent = Torrent.Load(torrentDict);
-            manager = new TorrentManager(torrent, savePath, new TorrentSettings());
-            engine.Register(manager);
-            //manager.Start();
-        }
+		public EngineTestRig(string savePath, int piecelength, PieceWriter writer)
+		{
+			if (writer == null)
+				writer = new MemoryWriter(new NullWriter());
+			listener = new CustomListener();
+			engine = new ClientEngine(new EngineSettings(), listener, writer);
+			torrentDict = CreateTorrent(piecelength);
+			torrent = Torrent.Load(torrentDict);
+			manager = new TorrentManager(torrent, savePath, new TorrentSettings());
+			engine.Register(manager);
+			//manager.Start();
+		}
 
-        public void AddConnection(IConnection connection)
-        {
-            listener.Add(manager, connection);
-        }
+		public void AddConnection(IConnection connection)
+		{
+			listener.Add(manager, connection);
+		}
 
-        private static BEncodedDictionary CreateTorrent(int pieceLength)
-        {
-            BEncodedDictionary infoDict = new BEncodedDictionary();
-            infoDict[new BEncodedString("piece length")] = new BEncodedNumber(pieceLength);
-            infoDict[new BEncodedString("pieces")] = new BEncodedString(new byte[20 * 15]);
-            infoDict[new BEncodedString("length")] = new BEncodedNumber(15 * 256 * 1024 - 1);
-            infoDict[new BEncodedString("name")] = new BEncodedString("test.files");
+		private static BEncodedDictionary CreateTorrent(int pieceLength)
+		{
+			BEncodedDictionary infoDict = new BEncodedDictionary();
+			infoDict[new BEncodedString("piece length")] = new BEncodedNumber(pieceLength);
+			infoDict[new BEncodedString("pieces")] = new BEncodedString(new byte[20 * 15]);
+			infoDict[new BEncodedString("length")] = new BEncodedNumber(15 * 256 * 1024 - 1);
+			infoDict[new BEncodedString("name")] = new BEncodedString("test.files");
 
-            BEncodedDictionary dict = new BEncodedDictionary();
-            dict[new BEncodedString("info")] = infoDict;
+			BEncodedDictionary dict = new BEncodedDictionary();
+			dict[new BEncodedString("info")] = infoDict;
 
-            BEncodedList announceTier = new BEncodedList();
-            announceTier.Add(new BEncodedString("custom://transfers1/announce"));
-            announceTier.Add(new BEncodedString("custom://transfers2/announce"));
-            announceTier.Add(new BEncodedString("http://transfers3/announce"));
-            BEncodedList announceList = new BEncodedList();
-            announceList.Add(announceTier);
-            dict[new BEncodedString("announce-list")] = announceList;
-            return dict;
-        }
+			BEncodedList announceTier = new BEncodedList();
+			announceTier.Add(new BEncodedString("custom://transfers1/announce"));
+			announceTier.Add(new BEncodedString("custom://transfers2/announce"));
+			announceTier.Add(new BEncodedString("http://transfers3/announce"));
+			BEncodedList announceList = new BEncodedList();
+			announceList.Add(announceTier);
+			dict[new BEncodedString("announce-list")] = announceList;
+			return dict;
+		}
 
-    }
+	}
 
-    class TestManualConnection
-    {
-        EngineTestRig rig1;
-        EngineTestRig rig2;
+	class TestManualConnection
+	{
+		EngineTestRig rig1;
+		EngineTestRig rig2;
 
-        public TestManualConnection()
-        {
-            rig1 = new EngineTestRig("Downloads1");
-            rig1.Manager.Start();
-            rig2 = new EngineTestRig("Downloads2");
-            rig2.Manager.Start();
+		public TestManualConnection()
+		{
+			rig1 = new EngineTestRig("Downloads1");
+			rig1.Manager.Start();
+			rig2 = new EngineTestRig("Downloads2");
+			rig2.Manager.Start();
 
-            ConnectionPair p = new ConnectionPair(5151);
+			ConnectionPair p = new ConnectionPair(5151);
 
-            rig1.AddConnection(p.Incoming);
-            rig2.AddConnection(p.Outgoing);
+			rig1.AddConnection(p.Incoming);
+			rig2.AddConnection(p.Outgoing);
 
-            while (true)
-            {
-                Console.WriteLine("Connection 1A active: {0}", p.Incoming.Connected);
-                Console.WriteLine("Connection 2A active: {0}", p.Outgoing.Connected);
-                System.Threading.Thread.Sleep(1000);
-            }
-        }
-    }
+			while (true)
+			{
+				Console.WriteLine("Connection 1A active: {0}", p.Incoming.Connected);
+				Console.WriteLine("Connection 2A active: {0}", p.Outgoing.Connected);
+				System.Threading.Thread.Sleep(1000);
+			}
+		}
+	}
 }

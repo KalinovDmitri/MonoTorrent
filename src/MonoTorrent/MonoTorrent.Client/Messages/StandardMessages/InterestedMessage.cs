@@ -33,70 +33,70 @@ using System.Net;
 
 namespace MonoTorrent.Client.Messages.Standard
 {
-    /// <summary>
-    /// Represents an "Interested" message
-    /// </summary>
-    public class InterestedMessage : PeerMessage
-    {
-        internal static readonly byte MessageId = 2;
-        private const int messageLength = 1;
+	/// <summary>
+	/// Represents an "Interested" message
+	/// </summary>
+	public class InterestedMessage : PeerMessage
+	{
+		internal static readonly byte MessageId = 2;
+		private const int messageLength = 1;
 
 
-        #region Constructors
-        /// <summary>
-        /// Creates a new InterestedMessage
-        /// </summary>
-        public InterestedMessage()
-        {
-        }
-        #endregion
+		#region Constructors
+		/// <summary>
+		/// Creates a new InterestedMessage
+		/// </summary>
+		public InterestedMessage()
+		{
+		}
+		#endregion
 
 
-        #region Methods
-        public override int Encode(byte[] buffer, int offset)
-        {
+		#region Methods
+		public override int Encode(byte[] buffer, int offset)
+		{
 			int written = offset;
 
-            written += Write(buffer, written, messageLength);
+			written += Write(buffer, written, messageLength);
 			written += Write(buffer, written, MessageId);
 
-            return CheckWritten(written - offset);
-        }
+			return CheckWritten(written - offset);
+		}
 
-        public override void Decode(byte[] buffer, int offset, int length)
-        {
-            // No decoding needed.
-        }
+		public override void Decode(byte[] buffer, int offset, int length)
+		{
+			// No decoding needed.
+		}
 
-        /// <summary>
-        /// Returns the length of the message in bytes
-        /// </summary>
-        public override int ByteLength
-        {
-            get { return (messageLength + 4); }
-        }
-        #endregion
+		/// <summary>
+		/// Returns the length of the message in bytes
+		/// </summary>
+		public override int ByteLength
+		{
+			get { return (messageLength + 4); }
+		}
+		#endregion
 
 
-        #region Overridden Methods
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return "InterestedMessage";
-        }
+		#region Overridden Methods
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString()
+		{
+			return "InterestedMessage";
+		}
 
-        public override bool Equals(object obj)
-        {
-            return (obj is InterestedMessage);
-        }
+		public override bool Equals(object obj)
+		{
+			return (obj is InterestedMessage);
+		}
 
-        public override int GetHashCode()
-        {
-            return this.ToString().GetHashCode();
-        }
-        #endregion
-    }
+		public override int GetHashCode()
+		{
+			return this.ToString().GetHashCode();
+		}
+		#endregion
+	}
 }

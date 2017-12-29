@@ -34,65 +34,65 @@ using System.Text;
 
 namespace MonoTorrent.Client
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    //[TestFixture]
-    public class FileManagerTest
-    {
-        private string path = string.Empty;
-        private string directoryName = string.Empty;
-        private string fullPath;
+	/// <summary>
+	/// 
+	/// </summary>
+	//[TestFixture]
+	public class FileManagerTest
+	{
+		private string path = string.Empty;
+		private string directoryName = string.Empty;
+		private string fullPath;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        [SetUp]
-        public void Setup()
-        {
-            this.path = GetType().Assembly.Location;
-            for (int i = 0; i >= 0; i++)
-                if (!Directory.Exists("temp" + i.ToString()))
-                {
-                    this.directoryName = "temp" + i.ToString();
-                    this.fullPath = Path.Combine(this.path, this.directoryName);
-                    Directory.CreateDirectory(fullPath);
-                    break;
-                }
+		/// <summary>
+		/// 
+		/// </summary>
+		[SetUp]
+		public void Setup()
+		{
+			this.path = GetType().Assembly.Location;
+			for (int i = 0; i >= 0; i++)
+				if (!Directory.Exists("temp" + i.ToString()))
+				{
+					this.directoryName = "temp" + i.ToString();
+					this.fullPath = Path.Combine(this.path, this.directoryName);
+					Directory.CreateDirectory(fullPath);
+					break;
+				}
 
-            GenerateTestFiles();
-        }
+			GenerateTestFiles();
+		}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        private void GenerateTestFiles()
-        {
-            FileStream file1 = File.OpenWrite(Path.Combine(this.fullPath, "file1.txt"));
-            FileStream file2 = File.OpenWrite(Path.Combine(this.fullPath, "file2.txt"));
+		/// <summary>
+		/// 
+		/// </summary>
+		private void GenerateTestFiles()
+		{
+			FileStream file1 = File.OpenWrite(Path.Combine(this.fullPath, "file1.txt"));
+			FileStream file2 = File.OpenWrite(Path.Combine(this.fullPath, "file2.txt"));
 
-            string data = "this is my teststring. It's not really that long, but i'll be writing a lot more where this come from\r\n";
+			string data = "this is my teststring. It's not really that long, but i'll be writing a lot more where this come from\r\n";
 
-            for (int i = 0; i < 100; i++)
-                file1.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, System.Text.Encoding.UTF8.GetByteCount(data));
+			for (int i = 0; i < 100; i++)
+				file1.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, System.Text.Encoding.UTF8.GetByteCount(data));
 
-            for (int i = 0; i < 5000; i++)
-                file2.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, System.Text.Encoding.UTF8.GetByteCount(data));
+			for (int i = 0; i < 5000; i++)
+				file2.Write(System.Text.Encoding.UTF8.GetBytes(data), 0, System.Text.Encoding.UTF8.GetByteCount(data));
 
-            file1.Close();
-            file2.Close();
-        }
+			file1.Close();
+			file2.Close();
+		}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        [TearDown]
-        public void RemoveTempFiles()
-        {
-            foreach (string str in Directory.GetFiles(Path.Combine(this.path, this.directoryName)))
-                File.Delete(str);
+		/// <summary>
+		/// 
+		/// </summary>
+		[TearDown]
+		public void RemoveTempFiles()
+		{
+			foreach (string str in Directory.GetFiles(Path.Combine(this.path, this.directoryName)))
+				File.Delete(str);
 
-            Directory.Delete(Path.Combine(path, "temp"));
-        }
-    }
+			Directory.Delete(Path.Combine(path, "temp"));
+		}
+	}
 }

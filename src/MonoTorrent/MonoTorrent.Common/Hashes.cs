@@ -4,92 +4,92 @@ using System.Text;
 
 namespace MonoTorrent.Common
 {
-    public class Hashes
-    {
-        #region Constants
-        /// <summary>
-        /// Hash code length (in bytes)
-        /// </summary>
-        internal static readonly int HashCodeLength = 20;
-        #endregion
+	public class Hashes
+	{
+		#region Constants
+		/// <summary>
+		/// Hash code length (in bytes)
+		/// </summary>
+		internal static readonly int HashCodeLength = 20;
+		#endregion
 
 
-        #region Private Fields
+		#region Private Fields
 
-        private int count;
-        private byte[] hashData;
+		private int count;
+		private byte[] hashData;
 
-        #endregion Private Fields
-
-
-        #region Properties
-
-        /// <summary>
-        /// Number of Hashes (equivalent to number of Pieces)
-        /// </summary>
-        public int Count
-        {
-            get { return this.count; }
-        }
-
-        #endregion Properties
+		#endregion Private Fields
 
 
-        #region Constructors
+		#region Properties
 
-        internal Hashes(byte[] hashData, int count)
-        {
-            this.hashData = hashData;
-            this.count = count;
-        }
+		/// <summary>
+		/// Number of Hashes (equivalent to number of Pieces)
+		/// </summary>
+		public int Count
+		{
+			get { return this.count; }
+		}
 
-        #endregion Constructors
+		#endregion Properties
 
 
-        #region Methods
+		#region Constructors
 
-        /// <summary>
-        /// Determine whether a calculated hash is equal to our stored hash
-        /// </summary>
-        /// <param name="hash">Hash code to check</param>
-        /// <param name="hashIndex">Index of hash/piece to verify against</param>
-        /// <returns>true iff hash is equal to our stored hash, false otherwise</returns>
-        public bool IsValid(byte[] hash, int hashIndex)
-        {
-            if (hash == null)
-                throw new ArgumentNullException("hash");
+		internal Hashes(byte[] hashData, int count)
+		{
+			this.hashData = hashData;
+			this.count = count;
+		}
 
-            if (hash.Length != HashCodeLength)
-                throw new ArgumentException(string.Format("Hash must be {0} bytes in length", HashCodeLength), "hash");
+		#endregion Constructors
 
-            if (hashIndex < 0 || hashIndex > count)
-                throw new ArgumentOutOfRangeException("hashIndex", string.Format("hashIndex must be between 0 and {0}", count)); 
 
-            int start = hashIndex * HashCodeLength;
-            for (int i = 0; i < HashCodeLength; i++)
-                if (hash[i] != this.hashData[i + start])
-                    return false;
+		#region Methods
 
-            return true;
-        }
+		/// <summary>
+		/// Determine whether a calculated hash is equal to our stored hash
+		/// </summary>
+		/// <param name="hash">Hash code to check</param>
+		/// <param name="hashIndex">Index of hash/piece to verify against</param>
+		/// <returns>true iff hash is equal to our stored hash, false otherwise</returns>
+		public bool IsValid(byte[] hash, int hashIndex)
+		{
+			if (hash == null)
+				throw new ArgumentNullException("hash");
 
-        /// <summary>
-        /// Returns the hash for a specific piece
-        /// </summary>
-        /// <param name="hashIndex">Piece/hash index to return</param>
-        /// <returns>byte[] (length HashCodeLength) containing hashdata</returns>
-        public byte[] ReadHash(int hashIndex)
-        {
-            if (hashIndex < 0 || hashIndex >= count)
-                throw new ArgumentOutOfRangeException("hashIndex");
+			if (hash.Length != HashCodeLength)
+				throw new ArgumentException(string.Format("Hash must be {0} bytes in length", HashCodeLength), "hash");
 
-            // Read out our specified piece's hash data
-            byte[] hash = new byte[HashCodeLength];
-            Buffer.BlockCopy(this.hashData, hashIndex * HashCodeLength, hash, 0, HashCodeLength);
+			if (hashIndex < 0 || hashIndex > count)
+				throw new ArgumentOutOfRangeException("hashIndex", string.Format("hashIndex must be between 0 and {0}", count));
 
-            return hash;
-        }
+			int start = hashIndex * HashCodeLength;
+			for (int i = 0; i < HashCodeLength; i++)
+				if (hash[i] != this.hashData[i + start])
+					return false;
 
-        #endregion Methods
-    }
+			return true;
+		}
+
+		/// <summary>
+		/// Returns the hash for a specific piece
+		/// </summary>
+		/// <param name="hashIndex">Piece/hash index to return</param>
+		/// <returns>byte[] (length HashCodeLength) containing hashdata</returns>
+		public byte[] ReadHash(int hashIndex)
+		{
+			if (hashIndex < 0 || hashIndex >= count)
+				throw new ArgumentOutOfRangeException("hashIndex");
+
+			// Read out our specified piece's hash data
+			byte[] hash = new byte[HashCodeLength];
+			Buffer.BlockCopy(this.hashData, hashIndex * HashCodeLength, hash, 0, HashCodeLength);
+
+			return hash;
+		}
+
+		#endregion Methods
+	}
 }

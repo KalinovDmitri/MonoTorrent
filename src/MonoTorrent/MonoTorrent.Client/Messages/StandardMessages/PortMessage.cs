@@ -33,85 +33,85 @@ using System.Net;
 
 namespace MonoTorrent.Client.Messages.Standard
 {
-    /// <summary>
-    /// Represents a "Port" message
-    /// </summary>
-    public class PortMessage : PeerMessage
-    {
-        private const int messageLength = 3;
-        internal static readonly byte MessageId = 9;
+	/// <summary>
+	/// Represents a "Port" message
+	/// </summary>
+	public class PortMessage : PeerMessage
+	{
+		private const int messageLength = 3;
+		internal static readonly byte MessageId = 9;
 
-        #region Private Fields
-        private ushort port;
-        #endregion
-
-
-        #region Public Properties
-
-        public override int ByteLength
-        {
-            get { return (messageLength + 4); }
-        }
-
-        public int Port
-        {
-            get { return this.port; }
-        }
-
-        #endregion
+		#region Private Fields
+		private ushort port;
+		#endregion
 
 
-        #region Constructors
-        public PortMessage()
-        {
-        }
+		#region Public Properties
 
-        public PortMessage(ushort port)
-        {
-            this.port = port;
-        }
-        
-        #endregion
+		public override int ByteLength
+		{
+			get { return (messageLength + 4); }
+		}
+
+		public int Port
+		{
+			get { return this.port; }
+		}
+
+		#endregion
 
 
-        #region Methods
+		#region Constructors
+		public PortMessage()
+		{
+		}
 
-        public override void Decode(byte[] buffer, int offset, int length)
-        {
-            this.port = (ushort)ReadShort(buffer, ref offset);
-        }
+		public PortMessage(ushort port)
+		{
+			this.port = port;
+		}
 
-        public override int Encode(byte[] buffer, int offset)
-        {
+		#endregion
+
+
+		#region Methods
+
+		public override void Decode(byte[] buffer, int offset, int length)
+		{
+			this.port = (ushort)ReadShort(buffer, ref offset);
+		}
+
+		public override int Encode(byte[] buffer, int offset)
+		{
 			int written = offset;
 
 			written += Write(buffer, written, messageLength);
 			written += Write(buffer, written, MessageId);
 			written += Write(buffer, written, port);
 
-            return CheckWritten(written - offset);
-        }
+			return CheckWritten(written - offset);
+		}
 
-        public override bool Equals(object obj)
-        {
-            PortMessage msg = obj as PortMessage;
-            return (msg == null) ? false : (this.port == msg.port);
-        }
+		public override bool Equals(object obj)
+		{
+			PortMessage msg = obj as PortMessage;
+			return (msg == null) ? false : (this.port == msg.port);
+		}
 
-        public override int GetHashCode()
-        {
-            return this.port.GetHashCode();
-        }
+		public override int GetHashCode()
+		{
+			return this.port.GetHashCode();
+		}
 
-        public override string ToString()
-        {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            sb.Append("PortMessage ");
-            sb.Append(" Port ");
-            sb.Append(this.port);
-            return sb.ToString();
-        }
+		public override string ToString()
+		{
+			System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			sb.Append("PortMessage ");
+			sb.Append(" Port ");
+			sb.Append(this.port);
+			return sb.ToString();
+		}
 
-        #endregion
-    }
+		#endregion
+	}
 }

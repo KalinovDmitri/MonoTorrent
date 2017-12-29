@@ -13,7 +13,7 @@ namespace MonoTorrent.Client
 		bool autostart;
 		bool filesExist;
 		int index = -1;
-        MainLoopResult pieceCompleteCallback;
+		MainLoopResult pieceCompleteCallback;
 
 		public override TorrentState State
 		{
@@ -27,7 +27,7 @@ namespace MonoTorrent.Client
 			this.hashingWaitHandle = new ManualResetEvent(false);
 			this.autostart = autostart;
 			this.filesExist = Manager.HasMetadata && manager.Engine.DiskManager.CheckAnyFilesExist(Manager);
-            this.pieceCompleteCallback = PieceComplete;
+			this.pieceCompleteCallback = PieceComplete;
 		}
 
 		private void QueueNextHash()
@@ -89,15 +89,15 @@ namespace MonoTorrent.Client
 
 		public override void Tick(int counter)
 		{
-            if (!filesExist)
-            {
-                Manager.Bitfield.SetAll(false);
-                for (int i = 0; i < Manager.Torrent.Pieces.Count; i++)
-                    Manager.RaisePieceHashed(new PieceHashedEventArgs(Manager, i, false));
-                index = Manager.Torrent.Pieces.Count;
-                HashingComplete();
-            }
-            else if (index == -1)
+			if (!filesExist)
+			{
+				Manager.Bitfield.SetAll(false);
+				for (int i = 0; i < Manager.Torrent.Pieces.Count; i++)
+					Manager.RaisePieceHashed(new PieceHashedEventArgs(Manager, i, false));
+				index = Manager.Torrent.Pieces.Count;
+				HashingComplete();
+			}
+			else if (index == -1)
 			{
 				index++;
 				QueueNextHash();

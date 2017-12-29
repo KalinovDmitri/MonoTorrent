@@ -5,20 +5,20 @@ using System.Text;
 
 namespace MonoTorrent.Dht
 {
-    class TaskCompleteEventArgs : EventArgs
-    {
-        private Task task;
+	class TaskCompleteEventArgs : EventArgs
+	{
+		private Task task;
 
-        public Task Task
-        {
-            get { return task; }
-            protected internal set { task = value; }
-        }
+		public Task Task
+		{
+			get { return task; }
+			protected internal set { task = value; }
+		}
 
-        public TaskCompleteEventArgs(Task task)
-        {
-            this.task = task;
-        }
-    }
+		public TaskCompleteEventArgs(Task task)
+		{
+			this.task = task;
+		}
+	}
 }
 #endif

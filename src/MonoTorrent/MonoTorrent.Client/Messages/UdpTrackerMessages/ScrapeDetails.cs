@@ -34,32 +34,32 @@ using System.Text;
 
 namespace MonoTorrent.Client.Messages.UdpTracker
 {
-    public class ScrapeDetails
-    {
-        private int complete;
-        private int leeches;
-        private int seeds;
+	public class ScrapeDetails
+	{
+		private int complete;
+		private int leeches;
+		private int seeds;
 
-        public int Complete
-        {
-            get { return complete; }
-        }
+		public int Complete
+		{
+			get { return complete; }
+		}
 
-        public int Leeches
-        {
-            get { return leeches; }
-        }
+		public int Leeches
+		{
+			get { return leeches; }
+		}
 
-        public int Seeds
-        {
-            get { return seeds; }
-        }
+		public int Seeds
+		{
+			get { return seeds; }
+		}
 
-        public ScrapeDetails(int seeds, int leeches, int complete)
-        {
-            this.complete = complete;
-            this.leeches = leeches;
-            this.seeds = seeds;
-        }
-    }
+		public ScrapeDetails(int seeds, int leeches, int complete)
+		{
+			this.complete = complete;
+			this.leeches = leeches;
+			this.seeds = seeds;
+		}
+	}
 }

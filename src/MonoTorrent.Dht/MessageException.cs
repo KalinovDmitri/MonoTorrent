@@ -5,19 +5,19 @@ using System.Text;
 
 namespace MonoTorrent.Dht
 {
-    internal class MessageException : Exception
-    {
-        private ErrorCode errorCode;
+	internal class MessageException : Exception
+	{
+		private ErrorCode errorCode;
 
-        public ErrorCode ErrorCode
-        {
-            get { return errorCode; }
-        }
+		public ErrorCode ErrorCode
+		{
+			get { return errorCode; }
+		}
 
-        public MessageException(ErrorCode errorCode, string message) : base(message)
-        {
-            this.errorCode = errorCode;
-        }
-    }
+		public MessageException(ErrorCode errorCode, string message) : base(message)
+		{
+			this.errorCode = errorCode;
+		}
+	}
 }
 #endif
